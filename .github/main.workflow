@@ -16,6 +16,6 @@ action "shellcheck" {
 }
 
 action "bats" {
-  uses = "actions/bin/bats@master"
-  args = "test/*.bats"
+  uses = "docker://buildkite/plugin-tester"
+  runs = ["sh", "-e", "-c", "apk --no-cache add jq && bats tests/"]
 }
