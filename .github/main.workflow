@@ -1,21 +1,21 @@
 # Actions for trigger-pipeline
 
-workflow "Test trigger-pipeline" {
+workflow "Test" {
   on = "push"
-  resolves = "trigger-pipeline bats"
+  resolves = "bats"
 }
 
-workflow "Lint trigger-pipeline" {
+workflow "Lint" {
   on = "push"
-  resolves = "trigger-pipeline shellcheck"
+  resolves = "shellcheck"
 }
 
-action "trigger-pipeline shellcheck" {
+action "shellcheck" {
   uses = "actions/bin/shellcheck@master"
-  args = "trigger-pipeline/*.sh"
+  args = "*.sh"
 }
 
-action "trigger-pipeline bats" {
+action "bats" {
   uses = "actions/bin/bats@master"
-  args = "trigger-pipeline/test/*.bats"
+  args = "test/*.bats"
 }
