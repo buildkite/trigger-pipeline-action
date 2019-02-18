@@ -31,11 +31,18 @@ teardown() {
   export BUILDKITE_API_ACCESS_TOKEN="123"
   export PIPELINE="my-org/my-pipeline"
 
-  stub curl "-x : echo moo"
+  export GITHUB_SHA=a-sha
+  export GITHUB_REF=refs/heads/a-branch
+  export GITHUB_EVENT_PATH="tests/push.json"
+
+  # TODO: This stub shouldn't pass without the JSON
+  stub curl "--silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d : echo {}"
 
   run $PWD/entrypoint.sh
 
   assert_output --partial "Build created"
   assert_output --partial "Saved build JSON"
-  assert_failure
+  assert_success
+
+  unstub curl
 }
