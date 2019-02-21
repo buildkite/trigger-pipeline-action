@@ -43,6 +43,7 @@ JSON=$(
 
 RESPONSE=$(
   curl \
+    --fail \
     --silent \
     -X POST \
     -H "Authorization: Bearer ${BUILDKITE_API_ACCESS_TOKEN}" \
