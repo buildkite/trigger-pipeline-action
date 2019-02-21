@@ -23,7 +23,7 @@ workflow "Trigger a Buildkite Build" {
 }
 
 action "Build" {
-  uses = "buildkite/trigger-pipeline-action@v1.0.0"
+  uses = "buildkite/trigger-pipeline-action@v1.1.0"
   secrets = ["BUILDKITE_API_ACCESS_TOKEN"]
   env = {
     PIPELINE = "my-org/my-deploy-pipeline"
