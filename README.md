@@ -2,12 +2,19 @@
 
 A [GitHub Action](https://github.com/actions) for triggering a build on a Buildkite pipeline.
 
-Features:
+
+<img src="screenshot.png" alt="Screenshot of the Trigger Buildkite GitHub Action Node" width="301" />
+
+## Features
 
 * Creates builds in Buildkite pipelines, setting commit, branch, message.
-* Saves build JSON response to `${HOME}/${GITHUB_ACTION}.json` for downstream actions.
+* Saves the build JSON response to `${HOME}/${GITHUB_ACTION}.json` for downstream actions.
 
 ## Usage
+
+Create a [Buildkite API Access Token](https://buildkite.com/docs/apis/rest-api#authentication) with `write_builds` scope, and save it to your GitHub repository’s **Settings → Secrets**. Then you can configure your Actions workflow with the details of the pipeline to be triggered, and the settings for the build.
+
+For example, the following workflow creates a new Buildkite build on every commit:
 
 ```workflow
 workflow "Trigger a Buildkite Build" {
@@ -55,5 +62,6 @@ act
 ## Roadmap
 
 * Add a `WAIT` option for waiting for the Buildkite build to finish.
+* Support other properties available in the [Buildkite Builds REST API](https://buildkite.com/docs/apis/rest-api/builds#create-a-build), such as environment variables and meta-data.
 
 Contributions welcome! ❤️
