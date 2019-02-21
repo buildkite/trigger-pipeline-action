@@ -1,6 +1,6 @@
 # Trigger Buildkite Pipeline GitHub Action
 
-A [GitHub Action](https://github.com/actions) for triggering a build on a Buildkite pipeline.
+A [GitHub Action](https://github.com/actions) for triggering a build on a [Buildkite](https://buildkite.com/) pipeline.
 
 
 <img src="screenshot.png" alt="Screenshot of the Trigger Buildkite GitHub Action Node" width="301" />
