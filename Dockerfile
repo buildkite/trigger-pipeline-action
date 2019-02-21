@@ -1,14 +1,13 @@
 FROM alpine
 
-LABEL version="1.0.0"
-LABEL repository="http://github.com/buildkite/actions/trigger-pipeline"
-LABEL homepage="http://github.com/toolmantim/actions/trigger-pipeline"
+LABEL repository="https://github.com/buildkite/trigger-pipeline-action"
+LABEL homepage="https://github.com/buildkite/trigger-pipeline-action"
 LABEL maintainer="Buildkite Support <support@buildkite.com>"
 
 LABEL com.github.actions.name="Trigger Buildkite Pipeline"
-LABEL com.github.actions.description="Triggers any Buildkite pipeline."
-LABEL com.github.actions.icon="zap"
-LABEL com.github.actions.color="blue"
+LABEL com.github.actions.description="A GitHub Action for triggering a build on a Buildkite pipeline."
+LABEL com.github.actions.icon="package"
+LABEL com.github.actions.color="green"
 
 RUN apk add --no-cache bash curl jq
 
