@@ -3,7 +3,7 @@
 A [GitHub Action](https://github.com/actions) for triggering a build on a [Buildkite](https://buildkite.com/) pipeline.
 
 
-<img src="screenshot.png" alt="Screenshot of the Trigger Buildkite GitHub Action Node" width="301" />
+<img src="screenshot.png" alt="Screenshot of the Trigger Buildkite GitHub Action Node" width="298" />
 
 ## Features
 
