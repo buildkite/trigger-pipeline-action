@@ -2,5 +2,3 @@
 updates:
 - path: README.md
   pattern: 'uses = "buildkite/trigger-pipeline-action@(v.*)"'
-- path: Dockerfile
-  pattern: 'LABEL version="(.*)"'
