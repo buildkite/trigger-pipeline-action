@@ -40,12 +40,20 @@ The following environment variable options can be configured:
 
 ## Development
 
-Install [act](https://github.com/nektos/act) and run it locally, to run the tests:
+To run the test workflow, you use [act](https://github.com/nektos/act) which will run it just as it does on GitHub:
 
 ```bash
 act
 ```
 
+## Contributing
+
+* Fork this repository
+* Create a new branch for your work
+* Push up any changes to your branch, and open a pull request. Don't feel it needs to be perfect — incomplete work is totally fine. We'd love to help get it ready for merging.
+
 ## Roadmap
 
 * Add a `WAIT` option for waiting for the Buildkite build to finish.
+
+Contributions welcome! ❤️
