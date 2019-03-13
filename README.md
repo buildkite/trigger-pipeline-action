@@ -61,7 +61,7 @@ act
 
 ## Releasing
 
-1. Create a new GitHub release. The version numbers in the readme will be automatically updated.
+* Create a new GitHub release. The version numbers in the readme will be automatically updated.
 
 ## Roadmap
 
