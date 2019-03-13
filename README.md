@@ -68,4 +68,4 @@ act
 * Add a `WAIT` option for waiting for the Buildkite build to finish.
 * Support other properties available in the [Buildkite Builds REST API](https://buildkite.com/docs/apis/rest-api/builds#create-a-build), such as environment variables and meta-data.
 
-Contributions welcome! ❤️
+Contributions welcome! ❤️❤️
