@@ -59,6 +59,10 @@ act
 * Create a new branch for your work
 * Push up any changes to your branch, and open a pull request. Don't feel it needs to be perfect — incomplete work is totally fine. We'd love to help get it ready for merging.
 
+## Releasing
+
+1. Create a new GitHub release. The version numbers in the readme will be automatically updated.
+
 ## Roadmap
 
 * Add a `WAIT` option for waiting for the Buildkite build to finish.
