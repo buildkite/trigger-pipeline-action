@@ -22,8 +22,6 @@ MESSAGE="${MESSAGE:-}"
 NAME=$(jq -r ".pusher.name" "$GITHUB_EVENT_PATH")
 EMAIL=$(jq -r ".pusher.email" "$GITHUB_EVENT_PATH")
 
-BUILD_ENV_VARS="${BUILD_ENV_VARS:-}"
-    
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
   jq -c -n \
@@ -43,14 +41,13 @@ JSON=$(
     }'
 )
 
-# Add additional env vars as a nested object
-FINAL_JSON=""
-if [[ "$BUILD_ENV_VARS" ]]; then
-    FINAL_JSON=$(
-      echo "$JSON" | jq --argjson env "$BUILD_ENV_VARS" '. + {env: $env}'
-    )
-else
-    FINAL_JSON=$JSON
+# Merge in the build environment variables, if they specified any
+if [[ "${BUILD_ENV_VARS:-}" ]]; then
+  if ! JSON=$(echo "$JSON" | jq -c --argjson BUILD_ENV_VARS "$BUILD_ENV_VARS" '. + {env: $BUILD_ENV_VARS}'); then
+    echo ""
+    echo "Error: BUILD_ENV_VARS provided invalid JSON: $BUILD_ENV_VARS"
+    exit 1
+  fi
 fi
 
 RESPONSE=$(
@@ -60,7 +57,7 @@ RESPONSE=$(
     -X POST \
     -H "Authorization: Bearer ${BUILDKITE_API_ACCESS_TOKEN}" \
     "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
-    -d "$FINAL_JSON"
+    -d "$JSON"
 )
 
 echo ""

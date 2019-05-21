@@ -3,7 +3,7 @@
 load "$BATS_PATH/load.bash"
 
 # Uncomment to enable stub debugging
-# if [[ -a /dev/tty ]]; then export CURL_STUB_DEBUG=/dev/tty; fi
+# export CURL_STUB_DEBUG=/dev/tty
 
 teardown() {
   unset BUILDKITE_API_ACCESS_TOKEN
@@ -128,4 +128,47 @@ teardown() {
   assert_success
 
   unstub curl
+}
+
+@test "Creates a build with build env vars from \$BUILD_ENV_VARS" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+  export BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
+
+  export GITHUB_SHA=a-sha
+  export GITHUB_REF=refs/heads/a-branch
+  export GITHUB_EVENT_PATH="tests/push.json"
+  export GITHUB_ACTION="push"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar"}}'
+
+  stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
+
+  run $PWD/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "https://buildkite.com/build-url"
+  assert_output --partial "Saved build JSON to:"
+  assert_output --partial "/github/home/push.json"
+
+  assert_success
+
+  unstub curl
+}
+
+@test "Prints error and fails if \$BUILD_ENV_VARS is not valid JSON" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+  export BUILD_ENV_VARS="broken"
+
+  export GITHUB_SHA=a-sha
+  export GITHUB_REF=refs/heads/a-branch
+  export GITHUB_EVENT_PATH="tests/push.json"
+  export GITHUB_ACTION="push"
+
+  run $PWD/entrypoint.sh
+
+  assert_output --partial "Error: BUILD_ENV_VARS provided invalid JSON: broken"
+
+  assert_failure
 }
