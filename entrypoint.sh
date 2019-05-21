@@ -41,6 +41,15 @@ JSON=$(
     }'
 )
 
+# Merge in the build environment variables, if they specified any
+if [[ "${BUILD_ENV_VARS:-}" ]]; then
+  if ! JSON=$(echo "$JSON" | jq -c --argjson BUILD_ENV_VARS "$BUILD_ENV_VARS" '. + {env: $BUILD_ENV_VARS}'); then
+    echo ""
+    echo "Error: BUILD_ENV_VARS provided invalid JSON: $BUILD_ENV_VARS"
+    exit 1
+  fi
+fi
+
 RESPONSE=$(
   curl \
     --fail \
