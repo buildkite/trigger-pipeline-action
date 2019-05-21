@@ -44,7 +44,7 @@ The following environment variable options can be configured:
 |COMMIT|The commit SHA of the build. Optional.|`$GITHUB_SHA`|
 |BRANCH|The branch of the build. Optional.|`$GITHUB_REF`|
 |MESSAGE|The message for the build. Optional.||
-|BUILD_ENV_VARS|Additional environment variables to set on the build, as a json object, e.g. `"{"ENV_KEY": "value", "ENV_KEY_2": "value", "ENV_KEY_3": "value"}"`. Optional. ||
+|BUILD_ENV_VARS|Additional environment variables to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
 
 ## Development
 
