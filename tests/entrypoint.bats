@@ -3,7 +3,7 @@
 load "$BATS_PATH/load.bash"
 
 # Uncomment to enable stub debugging
-# export CURL_STUB_DEBUG=/dev/tty
+# if [[ -a /dev/tty ]]; then export CURL_STUB_DEBUG=/dev/tty; fi
 
 teardown() {
   unset BUILDKITE_API_ACCESS_TOKEN
@@ -36,9 +36,9 @@ teardown() {
   export GITHUB_EVENT_PATH="tests/push.json"
   export GITHUB_ACTION="push"
 
-  # TODO: This stub shouldn't pass without verifying the JSON being posted is
-  # correct, but getting bats-mock to match the `-d {json}` part was impossible.
-  stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
+
+  stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
   run $PWD/entrypoint.sh
 
