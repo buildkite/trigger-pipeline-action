@@ -19,14 +19,14 @@ COMMIT="${COMMIT:-${GITHUB_SHA}}"
 BRANCH="${BRANCH:-${GITHUB_REF#"refs/heads/"}}"
 MESSAGE="${MESSAGE:-}"
 
-NAME=$(jq ".pusher.name" "$GITHUB_EVENT_PATH")
-EMAIL=$(jq ".pusher.email" "$GITHUB_EVENT_PATH")
+NAME=$(jq -r ".pusher.name" "$GITHUB_EVENT_PATH")
+EMAIL=$(jq -r ".pusher.email" "$GITHUB_EVENT_PATH")
 
 BUILD_ENV_VARS="${BUILD_ENV_VARS:-}"
     
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
-  jq -n \
+  jq -c -n \
     --arg COMMIT  "$COMMIT" \
     --arg BRANCH  "$BRANCH" \
     --arg MESSAGE "$MESSAGE" \
