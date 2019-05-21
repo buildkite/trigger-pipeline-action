@@ -3,7 +3,7 @@
 load "$BATS_PATH/load.bash"
 
 # Uncomment to enable stub debugging
-# export CURL_STUB_DEBUG=/dev/tty
+# if [[ -a /dev/tty ]]; then export CURL_STUB_DEBUG=/dev/tty; fi
 
 teardown() {
   unset BUILDKITE_API_ACCESS_TOKEN
