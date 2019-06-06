@@ -139,8 +139,9 @@ teardown() {
   export GITHUB_REF=refs/heads/a-branch
   export GITHUB_EVENT_PATH="tests/push.json"
   export GITHUB_ACTION="push"
+  export GITHUB_REPOSITORY="buildkite/test-repo"
 
-  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar"}}'
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar","GITHUB_REPOSITORY":"buildkite/test-repo"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
@@ -182,8 +183,9 @@ teardown() {
   export GITHUB_EVENT_PATH="tests/delete.json"
   export GITHUB_ACTION="delete"
   export GITHUB_EVENT_NAME="delete"
+  export GITHUB_REPOSITORY="buildkite/test-repo"
 
-  EXPECTED_JSON='{"commit":"a-sha","branch":"master","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"DELETE_EVENT_REF":"a-deleted-branch"}}'
+  EXPECTED_JSON='{"commit":"a-sha","branch":"master","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"DELETE_EVENT_REF":"a-deleted-branch","GITHUB_REPOSITORY":"buildkite/test-repo"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 

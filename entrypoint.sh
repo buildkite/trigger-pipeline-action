@@ -25,19 +25,26 @@ function get_delete_event_json() {
   echo "$DELETE_EVENT_JSON"
 }
 
+function get_github_env_json() {
+  local GITHUB_EVENT_JSON
+  
+  GITHUB_EVENT_JSON=$(
+    jq -c -n \
+      --arg GITHUB_REPOSITORY "$GITHUB_REPOSITORY" \
+      '{
+        GITHUB_REPOSITORY: $GITHUB_REPOSITORY,
+      }'
+  )
+  echo "$GITHUB_EVENT_JSON"
+}
+
 function get_build_env_vars_json() {
-  if [[ "$1" ]] && [[ "$2" ]]; then
     BUILD_ENV_VARS=$(
       jq -c -s '.[0] * .[1]' \
         <(echo "$1") \
-        <(echo "$2")
+        <(echo "$2") \
+        <(echo "$3")
     )
-  elif [[ "$1" ]]; then
-    BUILD_ENV_VARS=$1
-  elif [[ "$2" ]]; then
-    BUILD_ENV_VARS=$2
-  fi
-  
   echo "$BUILD_ENV_VARS"
 }
 
@@ -76,7 +83,7 @@ if [[ "$BUILD_ENV_VARS" ]]; then
   fi
 fi
 
-BUILD_ENV_VARS_JSON="$(get_build_env_vars_json "$DELETE_EVENT_JSON" "$BUILD_ENV_VARS")"
+BUILD_ENV_VARS_JSON="$(get_build_env_vars_json "$DELETE_EVENT_JSON" "$BUILD_ENV_VARS" "$(get_github_env_json)")"
 
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
