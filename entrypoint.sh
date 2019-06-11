@@ -40,7 +40,7 @@ function get_github_env_json() {
 
 function get_build_env_vars_json() {
     BUILD_ENV_VARS=$(
-      jq -c -s '.[0] * .[1]' \
+      jq -c -s 'add' \
         <(echo "$1") \
         <(echo "$2") \
         <(echo "$3")
