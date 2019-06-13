@@ -31,8 +31,10 @@ function get_github_env_json() {
   GITHUB_EVENT_JSON=$(
     jq -c -n \
       --arg GITHUB_REPOSITORY "$GITHUB_REPOSITORY" \
+      --arg SOURCE_REPO_SHA "$GITHUB_SHA" \
       '{
         GITHUB_REPOSITORY: $GITHUB_REPOSITORY,
+        SOURCE_REPO_SHA: $SOURCE_REPO_SHA,
       }'
   )
   echo "$GITHUB_EVENT_JSON"
