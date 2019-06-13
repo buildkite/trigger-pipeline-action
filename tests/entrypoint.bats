@@ -35,8 +35,9 @@ teardown() {
   export GITHUB_REF=refs/heads/a-branch
   export GITHUB_EVENT_PATH="tests/push.json"
   export GITHUB_ACTION="push"
+  export GITHUB_REPOSITORY="buildkite/test-repo"
 
-  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
@@ -61,8 +62,9 @@ teardown() {
   export GITHUB_REF=refs/heads/a-branch
   export GITHUB_EVENT_PATH="tests/push.json"
   export GITHUB_ACTION="push"
+  export GITHUB_REPOSITORY="buildkite/test-repo"
 
-  EXPECTED_JSON='{"commit":"custom-commit","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
+  EXPECTED_JSON='{"commit":"custom-commit","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
@@ -87,8 +89,9 @@ teardown() {
   export GITHUB_REF=refs/heads/a-branch
   export GITHUB_EVENT_PATH="tests/push.json"
   export GITHUB_ACTION="push"
+  export GITHUB_REPOSITORY="buildkite/test-repo"
 
-  EXPECTED_JSON='{"commit":"a-sha","branch":"custom-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
+  EXPECTED_JSON='{"commit":"a-sha","branch":"custom-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
@@ -113,8 +116,9 @@ teardown() {
   export GITHUB_REF=refs/heads/a-branch
   export GITHUB_EVENT_PATH="tests/push.json"
   export GITHUB_ACTION="push"
+  export GITHUB_REPOSITORY="buildkite/test-repo"
 
-  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"A custom message","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"A custom message","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
@@ -139,8 +143,9 @@ teardown() {
   export GITHUB_REF=refs/heads/a-branch
   export GITHUB_EVENT_PATH="tests/push.json"
   export GITHUB_ACTION="push"
+  export GITHUB_REPOSITORY="buildkite/test-repo"
 
-  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar"}}'
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar","GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
@@ -171,4 +176,59 @@ teardown() {
   assert_output --partial "Error: BUILD_ENV_VARS provided invalid JSON: broken"
 
   assert_failure
+}
+
+@test "Sets DELETED_EVENT_REF on delete event" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+
+  export GITHUB_SHA=a-sha
+  export GITHUB_REF=refs/heads/master
+  export GITHUB_EVENT_PATH="tests/delete.json"
+  export GITHUB_ACTION="delete"
+  export GITHUB_EVENT_NAME="delete"
+  export GITHUB_REPOSITORY="buildkite/test-repo"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"master","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"DELETE_EVENT_REF":"a-deleted-branch","GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"master"}}'
+
+  stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
+
+  run $PWD/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "https://buildkite.com/build-url"
+  assert_output --partial "Saved build JSON to:"
+  assert_output --partial "/github/home/delete.json"
+
+  assert_success
+
+  unstub curl
+}
+
+@test "Combines DELETED_EVENT_REF and BUILD_ENV_VARS correctly" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+  export BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
+
+  export GITHUB_SHA=a-sha
+  export GITHUB_REF=refs/heads/master
+  export GITHUB_EVENT_PATH="tests/delete.json"
+  export GITHUB_ACTION="delete"
+  export GITHUB_EVENT_NAME="delete"
+  export GITHUB_REPOSITORY="buildkite/test-repo"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"master","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"DELETE_EVENT_REF":"a-deleted-branch","FOO":"bar","GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"master"}}'
+
+  stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
+
+  run $PWD/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "https://buildkite.com/build-url"
+  assert_output --partial "Saved build JSON to:"
+  assert_output --partial "/github/home/delete.json"
+
+  assert_success
+
+  unstub curl
 }
