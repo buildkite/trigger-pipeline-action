@@ -32,9 +32,11 @@ function get_github_env_json() {
     jq -c -n \
       --arg GITHUB_REPOSITORY "$GITHUB_REPOSITORY" \
       --arg SOURCE_REPO_SHA "$GITHUB_SHA" \
+      --arg SOURCE_REPO_REF "${GITHUB_REF#"refs/heads/"}" \
       '{
         GITHUB_REPOSITORY: $GITHUB_REPOSITORY,
         SOURCE_REPO_SHA: $SOURCE_REPO_SHA,
+        SOURCE_REPO_REF: $SOURCE_REPO_REF,
       }'
   )
   echo "$GITHUB_EVENT_JSON"
