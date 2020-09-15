@@ -22,6 +22,8 @@ MESSAGE="${MESSAGE:-}"
 NAME=$(jq -r ".pusher.name" "$GITHUB_EVENT_PATH")
 EMAIL=$(jq -r ".pusher.email" "$GITHUB_EVENT_PATH")
 
+cat "$GITHUB_EVENT_PATH"
+
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
   jq -c -n \
