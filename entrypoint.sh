@@ -50,15 +50,12 @@ if [[ "${BUILD_ENV_VARS:-}" ]]; then
   fi
 fi
 
-RESPONSE=$(
-  curl \
-    --fail \
-    --silent \
-    -X POST \
-    -H "Authorization: Bearer ${BUILDKITE_API_ACCESS_TOKEN}" \
-    "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
-    -d "$JSON"
-)
+
+curl \
+  -X POST \
+  -H "Authorization: Bearer ${BUILDKITE_API_ACCESS_TOKEN}" \
+  "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
+  -d "$JSON"
 
 echo ""
 echo "Build created:"
