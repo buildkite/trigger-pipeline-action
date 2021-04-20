@@ -46,6 +46,15 @@ The following environment variable options can be configured:
 |MESSAGE|The message for the build. Optional.||
 |BUILD_ENV_VARS|Additional environment variables to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
 
+## Outputs
+
+The following outputs are provided by the action:
+
+|Output var|Description|
+|-|-|
+|url|The URL of the Buildkite build.|
+|json|The JSON response returned by the Buildkite API.|
+
 ## Development
 
 To run the test workflow, you use [act](https://github.com/nektos/act) which will run it just as it does on GitHub:
