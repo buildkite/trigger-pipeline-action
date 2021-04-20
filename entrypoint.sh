@@ -57,16 +57,15 @@ RESPONSE=$(
     -X POST \
     -H "Authorization: Bearer ${BUILDKITE_API_ACCESS_TOKEN}" \
     "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
-    -d "$JSON"
+    -d "$JSON" | tr -d '\n'
 )
 
 echo ""
 echo "Build created:"
-echo "$RESPONSE" | jq --raw-output ".web_url"
+URL=$(jq --raw-output ".web_url" <<< "$RESPONSE")
+echo $URL
 
-# Save output for downstream actions
-echo "${RESPONSE}" > "${HOME}/${GITHUB_ACTION}.json"
+# Provide JSON and Web URL as outputs for downstream actions
+echo "::set-output name=json::$RESPONSE"
+echo "::set-output name=url::$URL"
 
-echo ""
-echo "Saved build JSON to:"
-echo "${HOME}/${GITHUB_ACTION}.json"
