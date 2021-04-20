@@ -8,7 +8,7 @@ A [GitHub Action](https://github.com/actions) for triggering a build on a [Build
 ## Features
 
 * Creates builds in Buildkite pipelines, setting commit, branch, message.
-* Saves the build JSON response to `${HOME}/${GITHUB_ACTION}.json` for downstream actions.
+* Provides the build JSON response and the build URL as outputs for downstream actions.
 
 ## Usage
 
@@ -45,6 +45,15 @@ The following environment variable options can be configured:
 |BRANCH|The branch of the build. Optional.|`$GITHUB_REF`|
 |MESSAGE|The message for the build. Optional.||
 |BUILD_ENV_VARS|Additional environment variables to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
+
+## Outputs
+
+The following outputs are provided by the action:
+
+|Output var|Description|
+|-|-|
+|url|The URL of the Buildkite build.|
+|json|The JSON response returned by the Buildkite API.|
 
 ## Development
 
