@@ -18,22 +18,31 @@ PIPELINE_SLUG=$(echo "${PIPELINE}" | cut -d'/' -f2)
 COMMIT="${COMMIT:-${GITHUB_SHA}}"
 BRANCH="${BRANCH:-${GITHUB_REF#"refs/heads/"}}"
 MESSAGE="${MESSAGE:-}"
-
-NAME=$(jq -r ".pusher.name" "$GITHUB_EVENT_PATH")
+PR_NUMBER="${PR_NUMBER:-}"
+PR_REPO="git://github.com/${GITHUB_REPOSITORY}.git"
+PR_BASE_BRANCH="${PR_BASE_BRANCH:-}"
+NAME="${GITHUB_ACTOR}"
 EMAIL=$(jq -r ".pusher.email" "$GITHUB_EVENT_PATH")
+[[ "$EMAIL" == "null" ]] && EMAIL=""
 
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
   jq -c -n \
-    --arg COMMIT  "$COMMIT" \
-    --arg BRANCH  "$BRANCH" \
-    --arg MESSAGE "$MESSAGE" \
-    --arg NAME    "$NAME" \
-    --arg EMAIL   "$EMAIL" \
+    --arg COMMIT           "$COMMIT" \
+    --arg BRANCH           "$BRANCH" \
+    --arg MESSAGE          "$MESSAGE" \
+    --arg NAME             "$NAME" \
+    --arg EMAIL            "$EMAIL" \
+    --arg PR_NUMBER        "$PR_NUMBER" \
+    --arg PR_REPO          "$PR_REPO" \
+    --arg PR_BASE_BRANCH   "$PR_BASE_BRANCH" \
     '{
       "commit": $COMMIT,
       "branch": $BRANCH,
       "message": $MESSAGE,
+      "pull_request_id": $PR_NUMBER,
+      "pull_request_repository": $PR_REPO,
+      "pull_request_base_branch": $PR_BASE_BRANCH,
       "author": {
         "name": $NAME,
         "email": $EMAIL

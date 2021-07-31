@@ -45,6 +45,8 @@ The following environment variable options can be configured:
 |BRANCH|The branch of the build. Optional.|`$GITHUB_REF`|
 |MESSAGE|The message for the build. Optional.||
 |BUILD_ENV_VARS|Additional environment variables to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
+|PR_NUMBER|Pull request number to populate `BUILDKITE_PULL_REQUEST` with. Optional. ||
+|PR_BASE_BRANCH|Base branch of pull request to populate `BUILDKITE_PULL_REQUEST_BASE_BRANCH` with. Optional. ||
 
 ## Development
 
