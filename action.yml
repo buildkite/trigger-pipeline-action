@@ -1,0 +1,27 @@
+name: Buildkite Trigger
+description: Starts a build on Buildkite
+inputs:
+  pipeline:
+    description: The pipline to create a build on, in the format `<org-slug>/<pipeline-slug>`
+    required: true
+  commit:
+    description: The commit SHA of the build.
+  branch:
+    description: The branch of the build.
+  message:
+    description: The message for the build.
+  build-env-vars:
+    description: Additional environment variables to set on the build, in JSON format.
+  buildkite-api-access-token:
+    description: "Create a [Buildkite API Access Token](https://buildkite.com/docs/apis/rest-api#authentication) with `write_builds` scope and store it in your repo's secrets."
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.pipeline }}
+    - ${{ inputs.commit }}
+    - ${{ inputs.branch }}
+    - ${{ inputs.message }}
+    - ${{ inputs.build-env-vars }}
+    - ${{ inputs.buildkite-api-access-token }}

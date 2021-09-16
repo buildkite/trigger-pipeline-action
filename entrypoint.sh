@@ -2,6 +2,13 @@
 
 set -euo pipefail
 
+PIPELINE="$1"
+COMMIT="$2"
+BRANCH="$3"
+MESSAGE="$4"
+BUILD_ENV_VARS="$5"
+BUILDKITE_API_ACCESS_TOKEN="$6"
+
 if [[ -z "${BUILDKITE_API_ACCESS_TOKEN:-}" ]]; then
   echo "You must set the BUILDKITE_API_ACCESS_TOKEN environment variable (e.g. BUILDKITE_API_ACCESS_TOKEN = \"xyz\")"
   exit 1
