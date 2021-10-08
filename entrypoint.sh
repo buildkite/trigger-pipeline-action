@@ -52,13 +52,18 @@ fi
 
 RESPONSE=$(
   curl \
-    --fail \
     --silent \
     -X POST \
     -H "Authorization: Bearer ${BUILDKITE_API_ACCESS_TOKEN}" \
     "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
     -d "$JSON" | tr -d '\n'
 )
+
+if [[ $(jq .id <<< "$RESPONSE") == null ]]; then
+  echo -n "Buildkite API call failed: "
+  jq .message <<< "$RESPONSE"
+  exit 1
+fi
 
 echo ""
 echo "Build created:"
