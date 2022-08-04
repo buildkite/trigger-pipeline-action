@@ -40,7 +40,7 @@ The following environment variable options can be configured:
 
 |Env var|Description|Default|
 |-|-|-|
-|PIPELINE|The pipline to create a build on, in the format `<org-slug>/<pipeline-slug>`||
+|PIPELINE|The pipeline to create a build on, in the format `<org-slug>/<pipeline-slug>`||
 |COMMIT|The commit SHA of the build. Optional.|`$GITHUB_SHA`|
 |BRANCH|The branch of the build. Optional.|`$GITHUB_REF`|
 |MESSAGE|The message for the build. Optional.||
