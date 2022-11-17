@@ -66,6 +66,14 @@ URL=$(jq --raw-output ".web_url" <<< "$RESPONSE")
 echo $URL
 
 # Provide JSON and Web URL as outputs for downstream actions
-echo "::set-output name=json::$RESPONSE"
-echo "::set-output name=url::$URL"
+# use environment variable $GITHUB_OUTPUT, or fall back to deprecated set-output command
+# https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+if [[ -n "${GITHUB_OUTPUT}" ]]
+then
+  echo "json=$RESPONSE" >> ${GITHUB_OUTPUT}
+  echo "url=$URL" >> ${GITHUB_OUTPUT}
+else
+  echo "::set-output name=json::$RESPONSE"
+  echo "::set-output name=url::$URL"
+fi
 
