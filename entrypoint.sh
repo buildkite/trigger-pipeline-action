@@ -62,7 +62,7 @@ RESPONSE=$(
 
 echo ""
 echo "Build created:"
-URL=$(jq --raw-output ".web_url" <<< "$RESPONSE")
+URL=$(echo "$RESPONSE" | jq --raw-output ".web_url")
 echo $URL
 
 # Provide JSON and Web URL as outputs for downstream actions
