@@ -63,7 +63,7 @@ RESPONSE=$(
 ) || CODE=$?
 
 if [ $CODE -ne 0 ]; then
-  MESSAGE=$(jq .message <<< "$RESPONSE" 2> /dev/null || true)
+  MESSAGE=$(echo "$RESPONSE" | jq .message 2> /dev/null || true)
   if [[ -n "$MESSAGE" ]] && [[ "$MESSAGE" != 'null' ]]; then
     echo -n "Buildkite API call failed: $MESSAGE"
   fi
