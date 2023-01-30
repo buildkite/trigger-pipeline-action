@@ -21,7 +21,7 @@ teardown() {
 }
 
 @test "Prints error and fails if \$BUILDKITE_API_ACCESS_TOKEN isn't set" {
-  run $PWD/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "You must set the BUILDKITE_API_ACCESS_TOKEN environment variable"
   assert_failure
@@ -30,7 +30,7 @@ teardown() {
 @test "Prints error and fails if \$PIPELINE isn't set" {
   export BUILDKITE_API_ACCESS_TOKEN="123"
 
-  run $PWD/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "You must set the PIPELINE environment variable"
   assert_failure
@@ -44,7 +44,7 @@ teardown() {
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
-  run $PWD/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -65,7 +65,7 @@ teardown() {
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
-  run $PWD/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -86,7 +86,7 @@ teardown() {
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
-  run $PWD/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -107,7 +107,7 @@ teardown() {
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
-  run $PWD/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -128,7 +128,7 @@ teardown() {
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
 
-  run $PWD/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -145,7 +145,7 @@ teardown() {
   export PIPELINE="my-org/my-pipeline"
   export BUILD_ENV_VARS="broken"
 
-  run $PWD/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Error: BUILD_ENV_VARS provided invalid JSON: broken"
 
