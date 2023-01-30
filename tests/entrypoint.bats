@@ -5,6 +5,15 @@ load "${BATS_PLUGIN_PATH}/load.bash"
 # Uncomment to enable stub debugging
 # export CURL_STUB_DEBUG=/dev/tty
 
+setup() {
+  export GITHUB_SHA=a-sha
+  export GITHUB_REF=refs/heads/a-branch
+  export GITHUB_EVENT_PATH="tests/push.json"
+  export GITHUB_ACTION="push"
+
+  export HOME='/root' # necessary for output checking
+}
+
 teardown() {
   unset BUILDKITE_API_ACCESS_TOKEN
   unset PIPELINE
@@ -31,11 +40,6 @@ teardown() {
   export BUILDKITE_API_ACCESS_TOKEN="123"
   export PIPELINE="my-org/my-pipeline"
 
-  export GITHUB_SHA=a-sha
-  export GITHUB_REF=refs/heads/a-branch
-  export GITHUB_EVENT_PATH="tests/push.json"
-  export GITHUB_ACTION="push"
-
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
@@ -45,7 +49,7 @@ teardown() {
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
   assert_output --partial "Saved build JSON to:"
-  assert_output --partial "/github/home/push.json"
+  assert_output --partial "${HOME}/push.json"
 
   assert_success
 
@@ -57,11 +61,6 @@ teardown() {
   export PIPELINE="my-org/my-pipeline"
   export COMMIT="custom-commit"
 
-  export GITHUB_SHA=a-sha
-  export GITHUB_REF=refs/heads/a-branch
-  export GITHUB_EVENT_PATH="tests/push.json"
-  export GITHUB_ACTION="push"
-
   EXPECTED_JSON='{"commit":"custom-commit","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
@@ -71,7 +70,7 @@ teardown() {
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
   assert_output --partial "Saved build JSON to:"
-  assert_output --partial "/github/home/push.json"
+  assert_output --partial "${HOME}/push.json"
 
   assert_success
 
@@ -83,11 +82,6 @@ teardown() {
   export PIPELINE="my-org/my-pipeline"
   export BRANCH="custom-branch"
 
-  export GITHUB_SHA=a-sha
-  export GITHUB_REF=refs/heads/a-branch
-  export GITHUB_EVENT_PATH="tests/push.json"
-  export GITHUB_ACTION="push"
-
   EXPECTED_JSON='{"commit":"a-sha","branch":"custom-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
@@ -97,7 +91,7 @@ teardown() {
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
   assert_output --partial "Saved build JSON to:"
-  assert_output --partial "/github/home/push.json"
+  assert_output --partial "${HOME}/push.json"
 
   assert_success
 
@@ -109,11 +103,6 @@ teardown() {
   export PIPELINE="my-org/my-pipeline"
   export MESSAGE="A custom message"
 
-  export GITHUB_SHA=a-sha
-  export GITHUB_REF=refs/heads/a-branch
-  export GITHUB_EVENT_PATH="tests/push.json"
-  export GITHUB_ACTION="push"
-
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"A custom message","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
@@ -123,7 +112,7 @@ teardown() {
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
   assert_output --partial "Saved build JSON to:"
-  assert_output --partial "/github/home/push.json"
+  assert_output --partial "${HOME}/push.json"
 
   assert_success
 
@@ -135,11 +124,6 @@ teardown() {
   export PIPELINE="my-org/my-pipeline"
   export BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
 
-  export GITHUB_SHA=a-sha
-  export GITHUB_REF=refs/heads/a-branch
-  export GITHUB_EVENT_PATH="tests/push.json"
-  export GITHUB_ACTION="push"
-
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar"}}'
 
   stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '{\"web_url\": \"https://buildkite.com/build-url\"}'"
@@ -149,7 +133,7 @@ teardown() {
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
   assert_output --partial "Saved build JSON to:"
-  assert_output --partial "/github/home/push.json"
+  assert_output --partial "${HOME}/push.json"
 
   assert_success
 
@@ -160,11 +144,6 @@ teardown() {
   export BUILDKITE_API_ACCESS_TOKEN="123"
   export PIPELINE="my-org/my-pipeline"
   export BUILD_ENV_VARS="broken"
-
-  export GITHUB_SHA=a-sha
-  export GITHUB_REF=refs/heads/a-branch
-  export GITHUB_EVENT_PATH="tests/push.json"
-  export GITHUB_ACTION="push"
 
   run $PWD/entrypoint.sh
 
