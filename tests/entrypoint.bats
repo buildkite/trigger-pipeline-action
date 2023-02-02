@@ -188,3 +188,20 @@ teardown() {
 
   assert_failure
 }
+
+@test "Prints error and fails if \$BUILD_META_DATA is not valid JSON" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+  export BUILD_META_DATA="broken"
+
+  export GITHUB_SHA=a-sha
+  export GITHUB_REF=refs/heads/a-branch
+  export GITHUB_EVENT_PATH="tests/push.json"
+  export GITHUB_ACTION="push"
+
+  run $PWD/entrypoint.sh
+
+  assert_output --partial "Error: BUILD_META_DATA provided invalid JSON: broken"
+
+  assert_failure
+}
