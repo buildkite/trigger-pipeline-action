@@ -54,6 +54,14 @@ To run the test workflow, you use [act](https://github.com/nektos/act) which wil
 act
 ```
 
+## Testing
+
+To run the tests locally, use the plugin tester (that has everything already installed) by running the Docker command
+
+```bash
+docker run --rm -ti -v "$PWD":/plugin buildkite/plugin-tester:v4.0.0. 
+```
+
 ## Contributing
 
 * Fork this repository
