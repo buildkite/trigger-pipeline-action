@@ -59,7 +59,7 @@ act
 To run the tests locally, use the plugin tester (that has everything already installed) by running the Docker command
 
 ```bash
-docker run --rm -ti -v "$PWD":/plugin buildkite/plugin-tester:v4.0.0. 
+docker run --rm -ti -v "$PWD":/plugin buildkite/plugin-tester:v4.0.0
 ```
 
 ## Contributing
