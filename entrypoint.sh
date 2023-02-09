@@ -68,7 +68,7 @@ echo $URL
 # Provide JSON and Web URL as outputs for downstream actions
 # use environment variable $GITHUB_OUTPUT, or fall back to deprecated set-output command
 # https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
-if [[ -n "${GITHUB_OUTPUT}" ]]
+if [[ -n "${GITHUB_OUTPUT:-}" ]]
 then
   echo "json=$RESPONSE" >> ${GITHUB_OUTPUT}
   echo "url=$URL" >> ${GITHUB_OUTPUT}
