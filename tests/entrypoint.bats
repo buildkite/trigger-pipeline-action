@@ -207,6 +207,7 @@ teardown() {
   run "${PWD}"/entrypoint.sh
 
   assert_output --partial "curl: (22) The requested URL returned error: 401"
+  refute_output --partial "Buildkite API call failed"
   refute_output --partial "parse error"
 
   assert_failure 22
