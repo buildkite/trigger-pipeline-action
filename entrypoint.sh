@@ -50,20 +50,24 @@ if [[ "${BUILD_ENV_VARS:-}" ]]; then
   fi
 fi
 
+CODE=0
 RESPONSE=$(
   curl \
+    --fail-with-body \
     --silent \
     --show-error \
     -X POST \
     -H "Authorization: Bearer ${BUILDKITE_API_ACCESS_TOKEN}" \
     "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
     -d "$JSON" | tr -d '\n'
-)
+) || CODE=$?
 
-if [[ $(jq .id <<< "$RESPONSE") == null ]]; then
-  echo -n "Buildkite API call failed: "
-  jq .message <<< "$RESPONSE"
-  exit 1
+if [ $CODE -ne 0 ]; then
+  MESSAGE=$(jq .message <<< "$RESPONSE" 2> /dev/null || true)
+  if [[ -n "$MESSAGE" ]] && [[ "$MESSAGE" != 'null' ]]; then
+    echo -n "Buildkite API call failed: $MESSAGE"
+  fi
+  exit $CODE
 fi
 
 echo ""

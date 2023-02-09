@@ -41,9 +41,9 @@ teardown() {
   export PIPELINE="my-org/my-pipeline"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
-  RESPONSE_JSON='{"id": "ID", "web_url": "https://buildkite.com/build-url"}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
 
-  stub curl "--silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
   run "${PWD}"/entrypoint.sh
 
@@ -63,9 +63,9 @@ teardown() {
   export COMMIT="custom-commit"
 
   EXPECTED_JSON='{"commit":"custom-commit","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
-  RESPONSE_JSON='{"id": "ID", "web_url": "https://buildkite.com/build-url"}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
 
-  stub curl "--silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
   run "${PWD}"/entrypoint.sh
 
@@ -85,9 +85,9 @@ teardown() {
   export BRANCH="custom-branch"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"custom-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
-  RESPONSE_JSON='{"id": "ID", "web_url": "https://buildkite.com/build-url"}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
 
-  stub curl "--silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
   run "${PWD}"/entrypoint.sh
 
@@ -107,9 +107,9 @@ teardown() {
   export MESSAGE="A custom message"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"A custom message","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
-  RESPONSE_JSON='{"id": "ID", "web_url": "https://buildkite.com/build-url"}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
 
-  stub curl "--silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
   run "${PWD}"/entrypoint.sh
 
@@ -129,9 +129,9 @@ teardown() {
   export BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar"}}'
-  RESPONSE_JSON='{"id": "ID", "web_url": "https://buildkite.com/build-url"}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
 
-  stub curl "--silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
   run "${PWD}"/entrypoint.sh
 
@@ -154,9 +154,9 @@ teardown() {
   export GITHUB_OUTPUT=$TEST_TEMP_DIR/github_output_file
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar"}}'
-  RESPONSE_JSON='{"id": "ID", "web_url": "https://buildkite.com/build-url"}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
 
-  stub curl "--silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
   assert_file_not_exist $GITHUB_OUTPUT
   assert_not_exist $GITHUB_OUTPUT
@@ -177,21 +177,77 @@ teardown() {
   unstub curl
 }
 
-@test "Prints response message and fails when no build id is returned" {
+@test "Prints curl error on HTTP error" {
   export BUILDKITE_API_ACCESS_TOKEN="123"
   export PIPELINE="my-org/my-pipeline"
-  export BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
 
-  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar"}}'
-  RESPONSE_JSON='{"message": "error message"}'
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
 
-  stub curl "--silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo 'curl: (22) The requested URL returned error: 401' >&2; exit 22"
 
   run "${PWD}"/entrypoint.sh
 
-  assert_output --partial 'Buildkite API call failed: "error message"'
+  assert_output --partial "curl: (22) The requested URL returned error: 401"
+  refute_output --partial "Buildkite API call failed"
 
-  assert_failure
+  assert_failure 22
+
+  unstub curl
+}
+
+@test "Prints curl error and ignores non-JSON response on HTTP error" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
+  RESPONSE_HTML='<html></html>'
+
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_HTML'; echo 'curl: (22) The requested URL returned error: 401' >&2; exit 22"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "curl: (22) The requested URL returned error: 401"
+  refute_output --partial "parse error"
+
+  assert_failure 22
+
+  unstub curl
+}
+
+@test "Prints curl error but not null JSON response message on HTTP error" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
+  RESPONSE_JSON='{"message": null}'
+
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'; echo 'curl: (22) The requested URL returned error: 401' >&2; exit 22"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "curl: (22) The requested URL returned error: 401"
+  refute_output --partial "Buildkite API call failed"
+
+  assert_failure 22
+
+  unstub curl
+}
+
+@test "Prints curl error and JSON response message on HTTP error" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
+  RESPONSE_JSON='{"message": "Error Message."}'
+
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'; echo 'curl: (22) The requested URL returned error: 401' >&2; exit 22"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "curl: (22) The requested URL returned error: 401"
+  assert_output --partial 'Buildkite API call failed: "Error Message."'
+
+  assert_failure 22
 
   unstub curl
 }
