@@ -57,16 +57,23 @@ RESPONSE=$(
     -X POST \
     -H "Authorization: Bearer ${BUILDKITE_API_ACCESS_TOKEN}" \
     "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
-    -d "$JSON"
+    -d "$JSON" | tr -d '\n'
 )
 
 echo ""
 echo "Build created:"
-echo "$RESPONSE" | jq --raw-output ".web_url"
+URL=$(echo "$RESPONSE" | jq --raw-output ".web_url")
+echo $URL
 
-# Save output for downstream actions
-echo "${RESPONSE}" > "${HOME}/${GITHUB_ACTION}.json"
+# Provide JSON and Web URL as outputs for downstream actions
+# use environment variable $GITHUB_OUTPUT, or fall back to deprecated set-output command
+# https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+if [[ -n "${GITHUB_OUTPUT:-}" ]]
+then
+  echo "json=$RESPONSE" >> ${GITHUB_OUTPUT}
+  echo "url=$URL" >> ${GITHUB_OUTPUT}
+else
+  echo "::set-output name=json::$RESPONSE"
+  echo "::set-output name=url::$URL"
+fi
 
-echo ""
-echo "Saved build JSON to:"
-echo "${HOME}/${GITHUB_ACTION}.json"
