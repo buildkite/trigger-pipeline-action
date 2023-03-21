@@ -1,0 +1,25 @@
+name: 'Trigger Buildkite Pipeline(Fork)'
+author: 'Buildkite'
+description: 'A GitHub Action for triggering a build on a Buildkite pipeline.'
+inputs:
+  buildkite_token:
+    description: 'Buildkite API Access Token'
+    required: true
+  pipeline:
+    description: 'The pipline to create a build on, in the format <org-slug>/<pipeline-slug>'
+    required: true
+  commit_sha:
+    description: 'The commit SHA of the build'
+    required: false
+  branch_ref:
+    description: 'The branch of the build'
+    required: false
+  commit_message:
+    description: 'The message for the build'
+    required: false
+  build_env_vars:
+    description: 'Additional environment variables to set on the build, in JSON format'
+    required: false
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
