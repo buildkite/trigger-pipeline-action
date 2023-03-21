@@ -2,9 +2,6 @@
 
 A [GitHub Action](https://github.com/actions) for triggering a build on a [Buildkite](https://buildkite.com/) pipeline.
 
-
-<img src="screenshot.png" alt="Screenshot of the Trigger Buildkite GitHub Action Node" width="298" />
-
 ## Features
 
 * Creates builds in Buildkite pipelines, setting commit, branch, message.
@@ -21,7 +18,7 @@ on: [push]
 
 steps:
   - name: Trigger a Buildkite Build
-    uses: "buildkite/trigger-pipeline-action@v1.3.0"
+    uses: "buildkite/trigger-pipeline-action@v1.4.0"
     env:
       BUILDKITE_API_ACCESS_TOKEN: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
       PIPELINE: "my-org/my-deploy-pipeline"
