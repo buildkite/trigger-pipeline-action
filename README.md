@@ -25,9 +25,9 @@ steps:
     env:
       BUILDKITE_API_ACCESS_TOKEN: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
       PIPELINE: "my-org/my-deploy-pipeline"
-      BRANCH: ${{ github.ref }}
-      COMMIT: ${{ github.sha }}
-      MESSAGE:  ":buildkite::github: 🚀🚀🚀 Triggered from GHA: ${{ github.event.head_commit.message }}  "
+      BRANCH: "master"
+      COMMIT: "HEAD"
+      MESSAGE:  ":github: Triggered from a GitHub Action"
 ```
 
 ## Configuration Options
