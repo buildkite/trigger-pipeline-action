@@ -2,5 +2,8 @@
   "pusher": {
     "name": "The Pusher",
     "email": "pusher@pusher.com"
+  },
+  "pull_request": {
+    "number": 1337
   }
 }
