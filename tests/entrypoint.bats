@@ -101,7 +101,7 @@ teardown() {
   unstub curl
 }
 
-@test "Creates a build with branch from pull request" {
+@test "Creates a build from pull request" {
   export BUILDKITE_API_ACCESS_TOKEN="123"
   export PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_PATH="tests/pullrequest.json"
