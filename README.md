@@ -38,6 +38,7 @@ The following environment variable options can be configured:
 |BRANCH|The branch of the build. Optional.|`$GITHUB_REF`|
 |MESSAGE|The message for the build. Optional.||
 |BUILD_ENV_VARS|Additional environment variables to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
+|BUILD_META_DATA|Meta data to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
 
 ## Outputs
 

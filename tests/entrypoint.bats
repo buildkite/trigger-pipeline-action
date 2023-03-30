@@ -101,6 +101,28 @@ teardown() {
   unstub curl
 }
 
+@test "Creates a build from pull request" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+  export GITHUB_EVENT_PATH="tests/pullrequest.json"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"pull_request_id":"1337"}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
+
+  stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "https://buildkite.com/build-url"
+  assert_output --partial "::set-output name=json::$RESPONSE_JSON"
+  assert_output --partial "::set-output name=url::https://buildkite.com/build-url"
+
+  assert_success
+
+  unstub curl
+}
+
 @test "Creates a build with branch from \$MESSAGE" {
   export BUILDKITE_API_ACCESS_TOKEN="123"
   export PIPELINE="my-org/my-pipeline"
@@ -144,6 +166,29 @@ teardown() {
 
   unstub curl
 }
+
+@test "Creates a build with build meta-data vars from \$BUILD_META_DATA" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+  export BUILD_META_DATA="{\"FOO\": \"bar\"}"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"meta_data":{"FOO":"bar"}}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
+
+  stub curl "--fail --silent -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "https://buildkite.com/build-url"
+  assert_output --partial "::set-output name=json::$RESPONSE_JSON"
+  assert_output --partial "::set-output name=url::https://buildkite.com/build-url"
+
+  assert_success
+
+  unstub curl
+}
+
 
 @test "Writes outputs to \$GITHUB_OUTPUT file if defined" {
   TEST_TEMP_DIR="$(temp_make)"
@@ -261,6 +306,23 @@ teardown() {
   run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Error: BUILD_ENV_VARS provided invalid JSON: broken"
+
+  assert_failure
+}
+
+@test "Prints error and fails if \$BUILD_META_DATA is not valid JSON" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+  export BUILD_META_DATA="broken"
+
+  export GITHUB_SHA=a-sha
+  export GITHUB_REF=refs/heads/a-branch
+  export GITHUB_EVENT_PATH="tests/push.json"
+  export GITHUB_ACTION="push"
+
+  run $PWD/entrypoint.sh
+
+  assert_output --partial "Error: BUILD_META_DATA provided invalid JSON: broken"
 
   assert_failure
 }

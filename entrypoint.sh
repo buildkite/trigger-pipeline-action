@@ -22,6 +22,8 @@ MESSAGE="${MESSAGE:-}"
 NAME=$(jq -r ".pusher.name" "$GITHUB_EVENT_PATH")
 EMAIL=$(jq -r ".pusher.email" "$GITHUB_EVENT_PATH")
 
+PULL_REQUEST_ID=$(jq -r '.pull_request.number // ""' "$GITHUB_EVENT_PATH")
+
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
   jq -c -n \
@@ -40,6 +42,20 @@ JSON=$(
       }
     }'
 )
+
+# Link pull request if pull request id is specified
+if [[ ! -z "$PULL_REQUEST_ID" ]]; then
+  JSON=$(echo "$JSON" | jq -c --arg PULL_REQUEST_ID "$PULL_REQUEST_ID" '. + {pull_request_id: $PULL_REQUEST_ID}')
+fi
+
+# Set build meta data, if specified
+if [[ "${BUILD_META_DATA:-}" ]]; then
+  if ! JSON=$(echo "$JSON" | jq -c --argjson BUILD_META_DATA "$BUILD_META_DATA" '. + {meta_data: $BUILD_META_DATA}'); then
+    echo ""
+    echo "Error: BUILD_META_DATA provided invalid JSON: $BUILD_META_DATA"
+    exit 1
+  fi
+fi
 
 # Merge in the build environment variables, if they specified any
 if [[ "${BUILD_ENV_VARS:-}" ]]; then
