@@ -189,6 +189,29 @@ teardown() {
   unstub curl
 }
 
+@test "Creates a build with ignore_pipeline_branch_filters set to true from \$IGNORE_PIPELINE_BRANCH_FILTER" {
+  export BUILDKITE_API_ACCESS_TOKEN="123"
+  export PIPELINE="my-org/my-pipeline"
+  export BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
+  export IGNORE_PIPELINE_BRANCH_FILTER="true"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar"},"ignore_pipeline_branch_filters":true}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
+
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+
+  run $PWD/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "https://buildkite.com/build-url"
+  assert_output --partial "::set-output name=json::$RESPONSE_JSON"
+  assert_output --partial "::set-output name=url::https://buildkite.com/build-url"
+
+  assert_success
+
+  unstub curl
+}
+
 
 @test "Writes outputs to \$GITHUB_OUTPUT file if defined" {
   TEST_TEMP_DIR="$(temp_make)"

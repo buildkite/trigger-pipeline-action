@@ -66,6 +66,15 @@ if [[ "${BUILD_ENV_VARS:-}" ]]; then
   fi
 fi
 
+# Merge in ignore_pipeline_branch_filters, if they specified a value
+if [[ "${IGNORE_PIPELINE_BRANCH_FILTER:-}" ]]; then
+  if ! JSON=$(echo "$JSON" | jq -c --argjson IGNORE_PIPELINE_BRANCH_FILTER "$IGNORE_PIPELINE_BRANCH_FILTER" '. + {ignore_pipeline_branch_filters: $IGNORE_PIPELINE_BRANCH_FILTER}'); then
+    echo ""
+    echo "Error: Could not set ignore_pipeline_branch_filters"
+    exit 1
+  fi
+fi
+
 CODE=0
 RESPONSE=$(
   curl \
