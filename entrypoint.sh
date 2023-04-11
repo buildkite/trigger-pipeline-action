@@ -43,9 +43,6 @@ function get_github_env_json() {
 }
 
 function get_build_env_vars_json() {
-  echo 1: $1 >&3
-  echo 2: $2 >&3
-  echo 3: $3 >&3
     BUILD_ENV_VARS=$(
       jq -c -s 'add' \
         <(echo "$1") \
@@ -146,11 +143,7 @@ else
   FINAL_JSON=$JSON
 fi
 
-echo $BUILD_ENV_VARS_JSON >&3
-echo $FINAL_JSON >&3
-
 CODE=0
-echo $CODE >&3
 RESPONSE=$(
   curl \
     --fail-with-body \
@@ -161,9 +154,6 @@ RESPONSE=$(
     "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
     -d "$FINAL_JSON" | tr -d '\n'
 ) || CODE=$?
-
-echo Resp: $RESPONSE >&3
-echo $CODE >&3
 
 if [ $CODE -ne 0 ]; then
   MESSAGE=$(echo "$RESPONSE" | jq .message 2> /dev/null || true)
@@ -176,7 +166,7 @@ fi
 echo ""
 echo "Build created:"
 URL=$(echo "$RESPONSE" | jq --raw-output ".web_url")
-echo $URL >&3
+echo $URL
 
 # Provide JSON and Web URL as outputs for downstream actions
 # use environment variable $GITHUB_OUTPUT, or fall back to deprecated set-output command
