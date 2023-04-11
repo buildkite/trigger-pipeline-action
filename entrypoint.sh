@@ -67,7 +67,6 @@ fi
 
 ORG_SLUG=$(echo "${PIPELINE}" | cut -d'/' -f1)
 PIPELINE_SLUG=$(echo "${PIPELINE}" | cut -d'/' -f2)
-URL="https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" 
 
 COMMIT="${COMMIT:-${GITHUB_SHA}}"
 BRANCH="${BRANCH:-${GITHUB_REF#"refs/heads/"}}"
@@ -148,9 +147,6 @@ else
 fi
 
 echo $BUILD_ENV_VARS_JSON >&3
-
-echo $URL >&3
-
 echo $FINAL_JSON >&3
 
 CODE=0
@@ -162,13 +158,12 @@ RESPONSE=$(
     --show-error \
     -X POST \
     -H "Authorization: Bearer ${BUILDKITE_API_ACCESS_TOKEN}" \
-    $URL \
+    "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
     -d "$FINAL_JSON" | tr -d '\n'
 ) || CODE=$?
 
 echo Resp: $RESPONSE >&3
 echo $CODE >&3
-echo James
 
 if [ $CODE -ne 0 ]; then
   MESSAGE=$(echo "$RESPONSE" | jq .message 2> /dev/null || true)
