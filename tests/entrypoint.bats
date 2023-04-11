@@ -10,7 +10,7 @@ setup() {
   export GITHUB_REF=refs/heads/a-branch
   export GITHUB_EVENT_PATH="tests/push.json"
   export GITHUB_ACTION="push"
-
+  export GITHUB_REPOSITORY="buildkite/test-repo"
   export HOME='/root' # necessary for output checking
 }
 
@@ -39,6 +39,7 @@ teardown() {
 @test "Creates a build with defaults" {
   export BUILDKITE_API_ACCESS_TOKEN="123"
   export PIPELINE="my-org/my-pipeline"
+  export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"}}'
   RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'

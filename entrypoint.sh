@@ -2,6 +2,56 @@
 
 set -euo pipefail
 
+function is_delete_event() {
+  if [[ "$GITHUB_EVENT_NAME" == "delete" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function get_delete_event_json() {
+  local DELETE_EVENT_JSON
+  local DELETE_EVENT_REF
+
+  DELETE_EVENT_REF=$(jq --raw-output .ref "$GITHUB_EVENT_PATH")
+  DELETE_EVENT_JSON=$(
+    jq -c -n \
+      --arg DELETE_EVENT_REF "$DELETE_EVENT_REF" \
+      '{
+        DELETE_EVENT_REF: $DELETE_EVENT_REF,
+      }'
+  )
+  echo "$DELETE_EVENT_JSON"
+}
+
+function get_github_env_json() {
+  local GITHUB_EVENT_JSON
+
+  GITHUB_EVENT_JSON=$(
+    jq -c -n \
+      --arg GITHUB_REPOSITORY "$GITHUB_REPOSITORY" \
+      --arg SOURCE_REPO_SHA "$GITHUB_SHA" \
+      --arg SOURCE_REPO_REF "${GITHUB_REF#"refs/heads/"}" \
+      '{
+        GITHUB_REPOSITORY: $GITHUB_REPOSITORY,
+        SOURCE_REPO_SHA: $SOURCE_REPO_SHA,
+        SOURCE_REPO_REF: $SOURCE_REPO_REF,
+      }'
+  )
+  echo "$GITHUB_EVENT_JSON"
+}
+
+function get_build_env_vars_json() {
+    BUILD_ENV_VARS=$(
+      jq -c -s 'add' \
+        <(echo "$1") \
+        <(echo "$2") \
+        <(echo "$3")
+    )
+  echo "$BUILD_ENV_VARS"
+}
+
 if [[ -z "${BUILDKITE_API_ACCESS_TOKEN:-}" ]]; then
   echo "You must set the BUILDKITE_API_ACCESS_TOKEN environment variable (e.g. BUILDKITE_API_ACCESS_TOKEN = \"xyz\")"
   exit 1
@@ -23,6 +73,24 @@ NAME=$(jq -r ".pusher.name" "$GITHUB_EVENT_PATH")
 EMAIL=$(jq -r ".pusher.email" "$GITHUB_EVENT_PATH")
 
 PULL_REQUEST_ID=$(jq -r '.pull_request.number // ""' "$GITHUB_EVENT_PATH")
+
+BUILD_ENV_VARS="${BUILD_ENV_VARS:-}"
+
+DELETE_EVENT_JSON=""
+if is_delete_event; then
+    DELETE_EVENT_JSON="$(get_delete_event_json)"
+fi
+
+if [[ "$BUILD_ENV_VARS" ]]; then
+    if ! echo "$BUILD_ENV_VARS" | jq empty; then
+      echo ""
+      echo "Error: BUILD_ENV_VARS provided invalid JSON: $BUILD_ENV_VARS"
+      exit 1
+  fi
+fi
+
+BUILD_ENV_VARS_JSON="$(get_build_env_vars_json "$DELETE_EVENT_JSON" "$BUILD_ENV_VARS" "$(get_github_env_json)")"
+
 
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
@@ -57,15 +125,6 @@ if [[ "${BUILD_META_DATA:-}" ]]; then
   fi
 fi
 
-# Merge in the build environment variables, if they specified any
-if [[ "${BUILD_ENV_VARS:-}" ]]; then
-  if ! JSON=$(echo "$JSON" | jq -c --argjson BUILD_ENV_VARS "$BUILD_ENV_VARS" '. + {env: $BUILD_ENV_VARS}'); then
-    echo ""
-    echo "Error: BUILD_ENV_VARS provided invalid JSON: $BUILD_ENV_VARS"
-    exit 1
-  fi
-fi
-
 # Merge in ignore_pipeline_branch_filters, if they specified a value
 if [[ "${IGNORE_PIPELINE_BRANCH_FILTER:-}" ]]; then
   if ! JSON=$(echo "$JSON" | jq -c --argjson IGNORE_PIPELINE_BRANCH_FILTER "$IGNORE_PIPELINE_BRANCH_FILTER" '. + {ignore_pipeline_branch_filters: $IGNORE_PIPELINE_BRANCH_FILTER}'); then
@@ -74,6 +133,18 @@ if [[ "${IGNORE_PIPELINE_BRANCH_FILTER:-}" ]]; then
     exit 1
   fi
 fi
+
+# Add additional env vars as a nested object
+FINAL_JSON=""
+if [[ "$BUILD_ENV_VARS_JSON" ]]; then
+    FINAL_JSON=$(
+      echo "$JSON" | jq -c --argjson env "$BUILD_ENV_VARS_JSON" '. + {env: $env}'
+    )
+else
+    FINAL_JSON=$JSON
+fi
+
+echo $FINAL_JSON
 
 CODE=0
 RESPONSE=$(
@@ -84,7 +155,7 @@ RESPONSE=$(
     -X POST \
     -H "Authorization: Bearer ${BUILDKITE_API_ACCESS_TOKEN}" \
     "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
-    -d "$JSON" | tr -d '\n'
+    -d "$FINAL_JSON" | tr -d '\n'
 ) || CODE=$?
 
 if [ $CODE -ne 0 ]; then
