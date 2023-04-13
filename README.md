@@ -18,7 +18,7 @@ on: [push]
 
 steps:
   - name: Trigger a Buildkite Build
-    uses: "buildkite/trigger-pipeline-action@v1.4.0"
+    uses: "buildkite/trigger-pipeline-action@v1.5.0"
     env:
       BUILDKITE_API_ACCESS_TOKEN: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
       PIPELINE: "my-org/my-deploy-pipeline"
