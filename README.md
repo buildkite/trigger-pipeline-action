@@ -49,9 +49,9 @@ The following outputs are provided by the action:
 |url|The URL of the Buildkite build.|
 |json|The JSON response returned by the Buildkite API.|
 
-## Alternative Configuration
+## Configuration as Input Parameters
 
-An alternative usage to pass details of the pipeline to be triggered and other build settings, optional input parameters can now be used following this example.
+From v1.6.0, optional input parameters can now be used to pass in the configuration options. However, defining configuration defined as environment variables takes precedence over the input parameters.
 
 ```
 on: [push]
