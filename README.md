@@ -11,7 +11,7 @@ A [GitHub Action](https://github.com/actions) for triggering a build on a [Build
 
 Create a [Buildkite API Access Token](https://buildkite.com/docs/apis/rest-api#authentication) with `write_builds` scope, and save it to your GitHub repository’s **Settings → Secrets**. Then you can configure your Actions workflow with the details of the pipeline to be triggered, and the settings for the build.
 
-For example, the following workflow creates a new Buildkite build on every commit:
+For example, the following workflow creates a new Buildkite build on every commit by setting environment variables:
 
 ```
 on: [push]
@@ -48,6 +48,27 @@ The following outputs are provided by the action:
 |-|-|
 |url|The URL of the Buildkite build.|
 |json|The JSON response returned by the Buildkite API.|
+
+## Alternative Configuration
+
+An alternative usage to pass details of the pipeline to be triggered and other build settings, optional input parameters can now be used following this example.
+
+```
+on: [push]
+
+steps:
+  - name: Trigger a Buildkite Build
+    uses: "buildkite/trigger-pipeline-action@v1.6.0"
+    with:
+      buildkite-token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
+      pipeline: "my-org/my-deploy-pipeline"
+      branch: "master"
+      commit: "HEAD"
+      message:  ":github: Triggered from a GitHub Action"
+      build-env-vars: '{"TRIGGERED_FROM_GHA": "true"}'
+      build-meta-data: '{"FOO": "bar"}'
+      ignore-pipeline-branch-filter: true     
+```
 
 ## Development
 
