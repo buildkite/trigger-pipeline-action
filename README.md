@@ -51,7 +51,7 @@ The following outputs are provided by the action:
 
 ## Configuration as Input Parameters
 
-From v1.6.0, optional input parameters can now be used to pass in the configuration options. However, defining configuration defined as environment variables takes precedence over the input parameters.
+From v1.6.0, optional input parameters can now be used to pass in the configuration options. However, configuration defined as environment variables take precedence over the input parameters.
 
 ```
 on: [push]
