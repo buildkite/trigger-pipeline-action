@@ -11,6 +11,11 @@ A [GitHub Action](https://github.com/actions) for triggering a build on a [Build
 
 Create a [Buildkite API Access Token](https://buildkite.com/docs/apis/rest-api#authentication) with `write_builds` scope, and save it to your GitHub repository’s **Settings → Secrets**. Then you can configure your Actions workflow with the details of the pipeline to be triggered, and the settings for the build.
 
+
+## Configuration Options
+
+### Configuration as Environment Variables
+
 For example, the following workflow creates a new Buildkite build on every commit by setting environment variables:
 
 ```
@@ -18,7 +23,7 @@ on: [push]
 
 steps:
   - name: Trigger a Buildkite Build
-    uses: "buildkite/trigger-pipeline-action@v1.5.0"
+    uses: "buildkite/trigger-pipeline-action@v1.6.0"
     env:
       BUILDKITE_API_ACCESS_TOKEN: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
       PIPELINE: "my-org/my-deploy-pipeline"
@@ -27,7 +32,7 @@ steps:
       MESSAGE:  ":github: Triggered from a GitHub Action"
 ```
 
-## Configuration Options
+
 
 The following environment variable options can be configured:
 
@@ -40,16 +45,8 @@ The following environment variable options can be configured:
 |BUILD_ENV_VARS|Additional environment variables to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
 |BUILD_META_DATA|Meta data to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
 |IGNORE_PIPELINE_BRANCH_FILTER | Ignore pipeline branch filtering when creating a new build. true or false. Optional. ||
-## Outputs
 
-The following outputs are provided by the action:
-
-|Output var|Description|
-|-|-|
-|url|The URL of the Buildkite build.|
-|json|The JSON response returned by the Buildkite API.|
-
-## Configuration as Input Parameters
+### Configuration as Input Parameters
 
 From v1.6.0, optional input parameters can now be used to pass in the configuration options. However, configuration defined as environment variables take precedence over the input parameters.
 
@@ -69,6 +66,16 @@ steps:
       build-meta-data: '{"FOO": "bar"}'
       ignore-pipeline-branch-filter: true     
 ```
+
+## Outputs
+
+The following outputs are provided by the action:
+
+|Output var|Description|
+|-|-|
+|url|The URL of the Buildkite build.|
+|json|The JSON response returned by the Buildkite API.|
+
 
 ## Development
 
