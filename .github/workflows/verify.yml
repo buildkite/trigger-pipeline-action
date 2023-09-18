@@ -23,7 +23,7 @@ jobs:
         with:
           buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
           pipeline: "lzrinc/experimental-pipeline"             
-          branch: ${{ github.ref }}
+          branch: ${{ github.ref_name }}
           commit: ${{ github.sha }}
           message:  ":buildkite::github: 🚀🚀🚀 Triggered from GHA using Input args: ${{ github.event.head_commit.message }}"      
           build_env_vars: '{"TRIGGERED_FROM_GHA": "true"}'
