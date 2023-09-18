@@ -12,12 +12,19 @@ jobs:
       - name: Verify that the Docker image for the action builds
         run: docker build . --file Dockerfile      
  
+<<<<<<< HEAD
       - name: Run action with minimal parameters
+=======
+      - name: Run action with required parameters
+>>>>>>> master
         uses: ./
         with:
           buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
           pipeline: "lzrinc/experimental-pipeline"    
+<<<<<<< HEAD
           message: Triggered from GHA using minimal parameters
+=======
+>>>>>>> master
 
       - name: Run action with commit parameters
         uses: ./

@@ -2,12 +2,12 @@ name: 'Trigger Buildkite Pipeline'
 author: 'Buildkite'
 description: 'A GitHub Action for triggering a build on a Buildkite pipeline.'
 inputs:
-   buildkite-token:
+   buildkite_api_access_token:
      description: 'Buildkite API Access Token'
-     required: false
+     required: true
    pipeline:
      description: 'The pipline to create a build on, in the format <org-slug>/<pipeline-slug>'
-     required: false
+     required: true
    commit:
      description: 'The commit SHA of the build'
      required: false
@@ -16,31 +16,17 @@ inputs:
      required: false
    message:
      description: 'The message for the build'
-<<<<<<< Updated upstream
      required: false
-   build-env-vars:
-=======
-     required: true
    build_env_vars:
->>>>>>> Stashed changes
      description: 'Additional environment variables to set on the build, in JSON format'
      required: false
-   build-meta-data:
+   build_meta_data:
      description: 'Meta-data to set on the build, in JSON format'
      required: false
-   ignore-pipeline-branch-filter:
+   ignore_pipeline_branch_filter:
      description: 'Ignore pipeline branch filtering when creating a new build. true or false'
      required: false
 
 runs:
   using: 'docker'
-  image: 'Dockerfile'
-  env:
-      BUILDKITE_API_ACCESS_TOKEN: ${{ inputs.buildkite-token }}  
-      PIPELINE: ${{ inputs.pipeline }}  
-      BRANCH: ${{ inputs.branch }}  
-      COMMIT: ${{ inputs.commit }}  
-      MESSAGE:  ${{ inputs.message }}      
-      BUILD_ENV_VARS: ${{ inputs.build-env-vars }}      
-      BUILD_META_DATA: ${{ inputs.build-meta-data }}      
-      IGNORE_PIPELINE_BRANCH_FILTER: ${{ inputs.ignore-pipeline-branch-filter }}      
+  image: 'Dockerfile'  
