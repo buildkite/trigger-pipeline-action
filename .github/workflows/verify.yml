@@ -15,6 +15,6 @@ jobs:
       - name: Run action with required parameters
         uses: ./
         with:
-          buildkite-token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
+          buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
           pipeline: "lzrinc/experimental-pipeline"    
     

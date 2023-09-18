@@ -57,14 +57,14 @@ steps:
   - name: Trigger a Buildkite Build
     uses: "buildkite/trigger-pipeline-action@v1.6.0"
     with:
-      buildkite-token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
+      buildkite_api_access_token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
       pipeline: "my-org/my-deploy-pipeline"
       branch: "master"
       commit: "HEAD"
       message:  ":github: Triggered from a GitHub Action"
-      build-env-vars: '{"TRIGGERED_FROM_GHA": "true"}'
-      build-meta-data: '{"FOO": "bar"}'
-      ignore-pipeline-branch-filter: true     
+      build_env_vars: '{"TRIGGERED_FROM_GHA": "true"}'
+      build_meta_data: '{"FOO": "bar"}'
+      ignore_pipeline_branch_filter: true     
 ```
 
 ## Outputs
