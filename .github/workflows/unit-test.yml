@@ -19,7 +19,7 @@ jobs:
             bats-version: 1.2.1
         
         - name: Setup bats-lib
-          run: source install-bats-lib.sh
+          run: source ./install-bats-lib.sh
 
         - name: BATS test
           run: bats tests/entrypoint.bats
