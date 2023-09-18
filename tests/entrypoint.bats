@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-# load "${BATS_PLUGIN_PATH}/load.bash"
+load "${BATS_PLUGIN_PATH}/load.bash"
 
 # Uncomment to enable stub debugging
 # export CURL_STUB_DEBUG=/dev/tty

@@ -5,7 +5,7 @@ on: push
 jobs:
     build:
       name: build
-      runs-on: ubuntu-latest
+      runs-on: alpine-latest
       steps:
   
         - name: Setup BATS
@@ -17,4 +17,6 @@ jobs:
           uses: actions/checkout@v1
   
         - name: Test
-          run: bats -r .
+          run: bats -r tests/
+          env:
+            BATS_PLUGIN_PATH: /usr/lib/bats
