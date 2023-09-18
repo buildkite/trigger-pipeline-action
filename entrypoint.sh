@@ -43,12 +43,12 @@ function get_github_env_json() {
 }
 
 function get_build_env_vars_json() {
-    BUILD_ENV_VARS=$(
-      jq -c -s 'add' \
-        <(echo "$1") \
-        <(echo "$2") \
-        <(echo "$3")
-    )
+  BUILD_ENV_VARS=$(
+    jq -c -s 'add' \
+      <(echo "$1") \
+      <(echo "$2") \
+      <(echo "$3")
+  )
   echo "$BUILD_ENV_VARS"
 }
 
@@ -77,28 +77,27 @@ BUILD_ENV_VARS="${BUILD_ENV_VARS:-}"
 
 DELETE_EVENT_JSON=""
 if is_delete_event; then
-    DELETE_EVENT_JSON="$(get_delete_event_json)"
+  DELETE_EVENT_JSON="$(get_delete_event_json)"
 fi
 
 if [[ "$BUILD_ENV_VARS" ]]; then
-    if ! echo "$BUILD_ENV_VARS" | jq empty; then
-      echo ""
-      echo "Error: BUILD_ENV_VARS provided invalid JSON: $BUILD_ENV_VARS"
-      exit 1
+  if ! echo "$BUILD_ENV_VARS" | jq empty; then
+    echo ""
+    echo "Error: BUILD_ENV_VARS provided invalid JSON: $BUILD_ENV_VARS"
+    exit 1
   fi
 fi
 
 BUILD_ENV_VARS_JSON="$(get_build_env_vars_json "$DELETE_EVENT_JSON" "$BUILD_ENV_VARS" "$(get_github_env_json)")"
 
-
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
   jq -c -n \
-    --arg COMMIT  "$COMMIT" \
-    --arg BRANCH  "$BRANCH" \
+    --arg COMMIT "$COMMIT" \
+    --arg BRANCH "$BRANCH" \
     --arg MESSAGE "$MESSAGE" \
-    --arg NAME    "$NAME" \
-    --arg EMAIL   "$EMAIL" \
+    --arg NAME "$NAME" \
+    --arg EMAIL "$EMAIL" \
     '{
       "commit": $COMMIT,
       "branch": $BRANCH,
@@ -111,7 +110,7 @@ JSON=$(
 )
 
 # Link pull request if pull request id is specified
-if [[ ! -z "$PULL_REQUEST_ID" ]]; then
+if [[ -n "$PULL_REQUEST_ID" ]]; then
   JSON=$(echo "$JSON" | jq -c --arg PULL_REQUEST_ID "$PULL_REQUEST_ID" '. + {pull_request_id: $PULL_REQUEST_ID}')
 fi
 
@@ -136,9 +135,9 @@ fi
 # Add additional env vars as a nested object
 FINAL_JSON=""
 if [[ "$BUILD_ENV_VARS_JSON" ]]; then
-    FINAL_JSON=$(
-      echo "$JSON" | jq -c --argjson env "$BUILD_ENV_VARS_JSON" '. + {env: $env}'
-    )
+  FINAL_JSON=$(
+    echo "$JSON" | jq -c --argjson env "$BUILD_ENV_VARS_JSON" '. + {env: $env}'
+  )
 else
   FINAL_JSON=$JSON
 fi
@@ -156,7 +155,7 @@ RESPONSE=$(
 ) || CODE=$?
 
 if [ $CODE -ne 0 ]; then
-  MESSAGE=$(echo "$RESPONSE" | jq .message 2> /dev/null || true)
+  MESSAGE=$(echo "$RESPONSE" | jq .message 2>/dev/null || true)
   if [[ -n "$MESSAGE" ]] && [[ "$MESSAGE" != 'null' ]]; then
     echo -n "Buildkite API call failed: $MESSAGE"
   fi
@@ -166,17 +165,15 @@ fi
 echo ""
 echo "Build created:"
 URL=$(echo "$RESPONSE" | jq --raw-output ".web_url")
-echo $URL
+echo "$URL"
 
 # Provide JSON and Web URL as outputs for downstream actions
 # use environment variable $GITHUB_OUTPUT, or fall back to deprecated set-output command
 # https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
-if [[ -n "${GITHUB_OUTPUT:-}" ]]
-then
-  echo "json=$RESPONSE" >> ${GITHUB_OUTPUT}
-  echo "url=$URL" >> ${GITHUB_OUTPUT}
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+  echo "json=$RESPONSE" >>"${GITHUB_OUTPUT}"
+  echo "url=$URL" >>"${GITHUB_OUTPUT}"
 else
   echo "::set-output name=json::$RESPONSE"
   echo "::set-output name=url::$URL"
 fi
-

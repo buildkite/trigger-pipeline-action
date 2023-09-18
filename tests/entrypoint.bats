@@ -1,4 +1,4 @@
-#!/usr/bin/env bats
+#!/usr/bin/env ./test/libs/bats/bin/bats
 
 # load "${BATS_PLUGIN_PATH}/load.bash"
 
@@ -22,14 +22,16 @@ teardown() {
 
 @test "Prints error and fails if \$BUILDKITE_API_ACCESS_TOKEN isn't set" {
   run "${PWD}"/entrypoint.sh
-  ["$output" = "You must set the BUILDKITE_API_ACCESS_TOKEN environment variable"] 
+  assert_output --partial "You must set the BUILDKITE_API_ACCESS_TOKEN environment variable"
+  assert_failure
 }
 
 @test "Prints error and fails if \${{ inputs.pipeline }}  isn't set" {
   export BUILDKITE_API_ACCESS_TOKEN="123"
 
   run "${PWD}"/entrypoint.sh
-  ["$output" = "You must set the INPUT_PIPELINE environment variable"] 
+  assert_output --partial "You must set the PIPELINE environment variable"
+  assert_failure
 }
 
 # @test "Creates a build with defaults" {

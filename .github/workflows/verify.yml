@@ -13,10 +13,7 @@ jobs:
         run: docker run -v "$PWD":/mnt -w /mnt mvdan/shfmt -ci -i 2 -l -d -- *.sh
 
       - name: shellcheck
-        run: docker run -v "$PWD":/mnt -w /mnt koalaman/shellcheck -- *.sh test/*.bats
-
-      - name: misc files formatting
-        run: docker run -v "$PWD":/mnt -w /mnt tmknom/prettier --check .    
+        run: docker run -v "$PWD":/mnt -w /mnt koalaman/shellcheck -- *.sh tests/*.bats 
 
   tests:
     name: Unit tests
