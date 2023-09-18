@@ -57,17 +57,17 @@ if [[ -z "${BUILDKITE_API_ACCESS_TOKEN:-}" ]]; then
   exit 1
 fi
 
-if [[ -z "${PIPELINE:-}" ]]; then
-  echo "You must set the PIPELINE environment variable (e.g. PIPELINE = \"my-org/my-pipeline\")"
+if [[ -z "${INPUT_PIPELINE:-}" ]]; then
+  echo "You must set the INPUT_PIPELINE environment variable (e.g. PIPELINE = \"my-org/my-pipeline\")"
   exit 1
 fi
 
-ORG_SLUG=$(echo "${PIPELINE}" | cut -d'/' -f1)
-PIPELINE_SLUG=$(echo "${PIPELINE}" | cut -d'/' -f2)
+ORG_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f1)
+PIPELINE_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f2)
 
-COMMIT="${COMMIT:-${GITHUB_SHA}}"
-BRANCH="${BRANCH:-${GITHUB_REF#"refs/heads/"}}"
-MESSAGE="${MESSAGE:-}"
+COMMIT="${INPUT_COMMIT:-${GITHUB_SHA}}"
+BRANCH="${INPUT_BRANCH:-${GITHUB_REF#"refs/heads/"}}"
+MESSAGE="${INPUT_MESSAGE:-}"
 
 NAME=$(jq -r ".pusher.name" "$GITHUB_EVENT_PATH")
 EMAIL=$(jq -r ".pusher.email" "$GITHUB_EVENT_PATH")
