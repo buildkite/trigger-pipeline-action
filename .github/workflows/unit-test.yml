@@ -19,4 +19,4 @@ jobs:
             bats-version: 1.2.1
 
         - name: BATS test
-          run: bats tests-unit/unittesting.bats
+          run: bats tests/entrypoint.bats
