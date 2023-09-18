@@ -15,5 +15,5 @@ jobs:
       - name: Integration test 1
         uses: ./
         with:
-          buildkite-token: 123
-          pipeline: "test-pipeline"
+          buildkite-token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
+          pipeline: "lzrinc/experimental-pipeline"    
