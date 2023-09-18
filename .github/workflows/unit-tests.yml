@@ -8,15 +8,16 @@ jobs:
       runs-on: ubuntu-latest
       steps:
   
+        - name: Check out code
+          uses: actions/checkout@v3
+
         - name: Setup BATS
           uses: mig4/setup-bats@v1
           with:
             bats-version: 1.2.1
   
-        - name: Check out code
-          uses: actions/checkout@v1
+        - name: Verify that the Docker image for the action builds
+          run: docker build . --file Dockerfile            
   
         - name: Test
-          run: bats -r tests/
-          env:
-            BATS_PLUGIN_PATH: /usr/lib/bats
+          run: bats -r tests/ 
