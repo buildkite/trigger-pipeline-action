@@ -1,10 +1,5 @@
 #!/usr/bin/env bats
 
-load '/usr/lib/bats/bats-support/load.bash'
-load '/usr/lib/bats/bats-assert/load.bash'
-load '/usr/lib/bats/bats-file/load.bash'
-load '/usr/lib/bats/bats-mock/stub.bash'
-
 # Uncomment to enable stub debugging
 # export CURL_STUB_DEBUG=/dev/tty
 
@@ -15,9 +10,10 @@ setup() {
   export GITHUB_ACTION="push"
   export GITHUB_REPOSITORY="buildkite/test-repo"
   export HOME='/root' # necessary for output checking
+  
+  load 'libs/bats-support/load'
+  load 'libs/bats-assert/load'
 }
-
- /tmp/bats-run-t3mBc6/bats.1776.src: line 25: assert_output: command not found
 
 teardown() {
   unset BUILDKITE_API_ACCESS_TOKEN
