@@ -17,4 +17,15 @@ jobs:
         with:
           buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
           pipeline: "lzrinc/experimental-pipeline"    
-    
+
+      - name: Run action with commit parameters
+        uses: ./
+        with:
+          buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
+          pipeline: "lzrinc/experimental-pipeline"             
+          branch: ${{ github.ref }}
+          commit: ${{ github.sha }}
+          message:  ":buildkite::github: 🚀🚀🚀 Triggered from GHA using Input args: ${{ github.event.head_commit.message }}"      
+          build_env_vars: '{"TRIGGERED_FROM_GHA": "true"}'
+          build_meta_data: '{"FOO": "bar"}'
+          ignore_pipeline_branch_filter: true          
