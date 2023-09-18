@@ -42,18 +42,18 @@ function get_github_env_json() {
   echo "$GITHUB_EVENT_JSON"
 }
 
-function get_build_env_vars_json() {
-  BUILD_ENV_VARS=$(
+function get_INPUT_BUILD_ENV_VARS_json() {
+  INPUT_BUILD_ENV_VARS=$(
     jq -c -s 'add' \
       <(echo "$1") \
       <(echo "$2") \
       <(echo "$3")
   )
-  echo "$BUILD_ENV_VARS"
+  echo "$INPUT_BUILD_ENV_VARS"
 }
 
-if [[ -z "${BUILDKITE_API_ACCESS_TOKEN:-}" ]]; then
-  echo "You must set the BUILDKITE_API_ACCESS_TOKEN environment variable (e.g. BUILDKITE_API_ACCESS_TOKEN = \"xyz\")"
+if [[ -z "${INPUT_BUILDKITE_API_ACCESS_TOKEN:-}" ]]; then
+  echo "You must set the INPUT_BUILDKITE_API_ACCESS_TOKEN environment variable (e.g. INPUT_BUILDKITE_API_ACCESS_TOKEN = \"xyz\")"
   exit 1
 fi
 
@@ -73,22 +73,22 @@ NAME=$(jq -r ".pusher.name" "$GITHUB_EVENT_PATH")
 EMAIL=$(jq -r ".pusher.email" "$GITHUB_EVENT_PATH")
 PULL_REQUEST_ID=$(jq -r '.pull_request.number // ""' "$GITHUB_EVENT_PATH")
 
-BUILD_ENV_VARS="${BUILD_ENV_VARS:-}"
+INPUT_BUILD_ENV_VARS="${INPUT_BUILD_ENV_VARS:-}"
 
 DELETE_EVENT_JSON=""
 if is_delete_event; then
   DELETE_EVENT_JSON="$(get_delete_event_json)"
 fi
 
-if [[ "$BUILD_ENV_VARS" ]]; then
-  if ! echo "$BUILD_ENV_VARS" | jq empty; then
+if [[ "$INPUT_BUILD_ENV_VARS" ]]; then
+  if ! echo "$INPUT_BUILD_ENV_VARS" | jq empty; then
     echo ""
-    echo "Error: BUILD_ENV_VARS provided invalid JSON: $BUILD_ENV_VARS"
+    echo "Error: INPUT_BUILD_ENV_VARS provided invalid JSON: $INPUT_BUILD_ENV_VARS"
     exit 1
   fi
 fi
 
-BUILD_ENV_VARS_JSON="$(get_build_env_vars_json "$DELETE_EVENT_JSON" "$BUILD_ENV_VARS" "$(get_github_env_json)")"
+INPUT_BUILD_ENV_VARS_JSON="$(get_INPUT_BUILD_ENV_VARS_json "$DELETE_EVENT_JSON" "$INPUT_BUILD_ENV_VARS" "$(get_github_env_json)")"
 
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
@@ -115,28 +115,28 @@ if [[ -n "$PULL_REQUEST_ID" ]]; then
 fi
 
 # Set build meta data, if specified
-if [[ "${BUILD_META_DATA:-}" ]]; then
-  if ! JSON=$(echo "$JSON" | jq -c --argjson BUILD_META_DATA "$BUILD_META_DATA" '. + {meta_data: $BUILD_META_DATA}'); then
+if [[ "${INPUT_BUILD_META_DATA:-}" ]]; then
+  if ! JSON=$(echo "$JSON" | jq -c --argjson INPUT_BUILD_META_DATA "$INPUT_BUILD_META_DATA" '. + {meta_data: $INPUT_BUILD_META_DATA}'); then
     echo ""
-    echo "Error: BUILD_META_DATA provided invalid JSON: $BUILD_META_DATA"
+    echo "Error: INPUT_BUILD_META_DATA provided invalid JSON: $INPUT_BUILD_META_DATA"
     exit 1
   fi
 fi
 
-# Merge in ignore_pipeline_branch_filters, if they specified a value
-if [[ "${IGNORE_PIPELINE_BRANCH_FILTER:-}" ]]; then
-  if ! JSON=$(echo "$JSON" | jq -c --argjson IGNORE_PIPELINE_BRANCH_FILTER "$IGNORE_PIPELINE_BRANCH_FILTER" '. + {ignore_pipeline_branch_filters: $IGNORE_PIPELINE_BRANCH_FILTER}'); then
+# Merge in INPUT_IGNORE_PIPELINE_BRANCH_FILTERs, if they specified a value
+if [[ "${INPUT_IGNORE_PIPELINE_BRANCH_FILTER:-}" ]]; then
+  if ! JSON=$(echo "$JSON" | jq -c --argjson INPUT_IGNORE_PIPELINE_BRANCH_FILTER "$INPUT_IGNORE_PIPELINE_BRANCH_FILTER" '. + {INPUT_IGNORE_PIPELINE_BRANCH_FILTERs: $INPUT_IGNORE_PIPELINE_BRANCH_FILTER}'); then
     echo ""
-    echo "Error: Could not set ignore_pipeline_branch_filters"
+    echo "Error: Could not set INPUT_IGNORE_PIPELINE_BRANCH_FILTERs"
     exit 1
   fi
 fi
 
 # Add additional env vars as a nested object
 FINAL_JSON=""
-if [[ "$BUILD_ENV_VARS_JSON" ]]; then
+if [[ "$INPUT_BUILD_ENV_VARS_JSON" ]]; then
   FINAL_JSON=$(
-    echo "$JSON" | jq -c --argjson env "$BUILD_ENV_VARS_JSON" '. + {env: $env}'
+    echo "$JSON" | jq -c --argjson env "$INPUT_BUILD_ENV_VARS_JSON" '. + {env: $env}'
   )
 else
   FINAL_JSON=$JSON
@@ -149,7 +149,7 @@ RESPONSE=$(
     --silent \
     --show-error \
     -X POST \
-    -H "Authorization: Bearer ${BUILDKITE_API_ACCESS_TOKEN}" \
+    -H "Authorization: Bearer ${INPUT_BUILDKITE_API_ACCESS_TOKEN}" \
     "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
     -d "$FINAL_JSON" | tr -d '\n'
 ) || CODE=$?
