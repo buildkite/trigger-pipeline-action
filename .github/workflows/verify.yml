@@ -21,8 +21,9 @@ jobs:
           branch: master
           commit: HEAD
 
-      - name: Run action with commit parameters
+      - name: Run action with all parameters
         uses: ./
+        id: tests
         with:
           buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
           pipeline: "lzrinc/experimental-pipeline"             
@@ -32,3 +33,6 @@ jobs:
           build_env_vars: '{"TRIGGERED_FROM_GHA": "true"}'
           build_meta_data: '{"FOO": "bar"}'
           ignore_pipeline_branch_filter: true          
+      
+      - name: Verify output
+        run: echo ${{join(steps.tests.outputs.*, '\n')}} 
