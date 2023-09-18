@@ -18,6 +18,8 @@ jobs:
           buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
           pipeline: "lzrinc/experimental-pipeline"    
           message: Triggered from GHA using minimal parameters
+          branch: master
+          commit: HEAD
 
       - name: Run action with commit parameters
         uses: ./
