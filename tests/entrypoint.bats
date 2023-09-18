@@ -1,5 +1,8 @@
 #!/usr/bin/env bats
 
+load 'libs/bats-support/load.sh'
+load 'libs/bats-assert/load.sh'
+
 # Uncomment to enable stub debugging
 # export CURL_STUB_DEBUG=/dev/tty
 
@@ -10,9 +13,6 @@ setup() {
   export GITHUB_ACTION="push"
   export GITHUB_REPOSITORY="buildkite/test-repo"
   export HOME='/root' # necessary for output checking
-  
-  load 'libs/bats-support/load'
-  load 'libs/bats-assert/load'
 }
 
 teardown() {
