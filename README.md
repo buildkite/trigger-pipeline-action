@@ -14,41 +14,9 @@ Create a [Buildkite API Access Token](https://buildkite.com/docs/apis/rest-api#a
 
 ## Configuration Options
 
-### Configuration as Environment Variables
-
-For example, the following workflow creates a new Buildkite build on every commit by setting environment variables:
-
-```
-on: [push]
-
-steps:
-  - name: Trigger a Buildkite Build
-    uses: "buildkite/trigger-pipeline-action@v1.6.0"
-    env:
-      BUILDKITE_API_ACCESS_TOKEN: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
-      PIPELINE: "my-org/my-deploy-pipeline"
-      BRANCH: "master"
-      COMMIT: "HEAD"
-      MESSAGE:  ":github: Triggered from a GitHub Action"
-```
-
-
-
-The following environment variable options can be configured:
-
-|Env var|Description|Default|
-|-|-|-|
-|PIPELINE|The pipeline to create a build on, in the format `<org-slug>/<pipeline-slug>`||
-|COMMIT|The commit SHA of the build. Optional.|`$GITHUB_SHA`|
-|BRANCH|The branch of the build. Optional.|`$GITHUB_REF`|
-|MESSAGE|The message for the build. Optional.||
-|BUILD_ENV_VARS|Additional environment variables to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
-|BUILD_META_DATA|Meta data to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
-|IGNORE_PIPELINE_BRANCH_FILTER | Ignore pipeline branch filtering when creating a new build. true or false. Optional. ||
-
 ### Configuration as Input Parameters
 
-From v1.6.0, optional input parameters can now be used to pass in the configuration options. However, configuration defined as environment variables take precedence over the input parameters.
+The following workflow creates a new Buildkite build to the target `pipeline` on every commit.
 
 ```
 on: [push]
@@ -82,7 +50,7 @@ The following outputs are provided by the action:
 To run the test workflow, you use [act](https://github.com/nektos/act) which will run it just as it does on GitHub:
 
 ```bash
-act
+act -n
 ```
 
 ## Testing

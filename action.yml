@@ -11,6 +11,7 @@ inputs:
    commit:
      description: 'The commit SHA of the build'
      required: false
+     default: HEAD
    branch:
      description: 'The branch of the build'
      required: false

@@ -12,20 +12,27 @@ jobs:
       - name: Verify that the Docker image for the action builds
         run: docker build . --file Dockerfile      
  
-      - name: Run action with required parameters
+      - name: Run action with minimal parameters
         uses: ./
         with:
           buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
           pipeline: "lzrinc/experimental-pipeline"    
+          message: Triggered from GHA using minimal parameters
+          branch: master
+          commit: HEAD
 
-      - name: Run action with commit parameters
+      - name: Run action with all parameters
         uses: ./
+        id: tests
         with:
           buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
           pipeline: "lzrinc/experimental-pipeline"             
-          branch: ${{ github.ref_name }}
-          commit: ${{ github.sha }}
-          message:  ":buildkite::github: 🚀🚀🚀 Triggered from GHA using Input args: ${{ github.event.head_commit.message }}"      
+          branch: dev
+          commit: HEAD
+          message:  ":buildkite::github: 🚀🚀🚀 Triggered from GHA using commit message: ${{ github.event.head_commit.message }}"      
           build_env_vars: '{"TRIGGERED_FROM_GHA": "true"}'
           build_meta_data: '{"FOO": "bar"}'
           ignore_pipeline_branch_filter: true          
+      
+      - name: Verify output
+        run: echo ${{join(steps.tests.outputs.*, '\n')}} 
