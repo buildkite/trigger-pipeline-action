@@ -1,4 +1,4 @@
-name: CI
+name: Unit Test
 
 on: push
 
@@ -18,6 +18,4 @@ jobs:
   
         - name: Verify that the Docker image for the action builds
           run: docker build . --file Dockerfile            
-  
-        - name: Test
-          run: bats -r tests/ 
+   

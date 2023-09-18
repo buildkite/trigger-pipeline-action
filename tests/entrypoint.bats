@@ -1,8 +1,6 @@
 #!/usr/bin/env bats
 
-load 'libs/bats-support/load'
-load 'libs/bats-assert/load'
-load 'libs/bats-file/load'
+load "${BATS_PLUGIN_PATH}/load.bash"
 
 # Uncomment to enable stub debugging
 # export CURL_STUB_DEBUG=/dev/tty
@@ -23,7 +21,7 @@ teardown() {
 }
 
 @test "Prints error and fails if \$BUILDKITE_API_ACCESS_TOKEN isn't set" {
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "You must set the BUILDKITE_API_ACCESS_TOKEN environment variable"
   assert_failure
@@ -32,7 +30,7 @@ teardown() {
 @test "Prints error and fails if \${{ inputs.pipeline }}  isn't set" {
   export BUILDKITE_API_ACCESS_TOKEN="123"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "You must set the INPUT_PIPELINE environment variable"
   assert_failure
@@ -48,7 +46,7 @@ teardown() {
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -71,7 +69,7 @@ teardown() {
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -94,7 +92,7 @@ teardown() {
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -117,7 +115,7 @@ teardown() {
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -140,7 +138,7 @@ teardown() {
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -163,7 +161,7 @@ teardown() {
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -186,7 +184,7 @@ teardown() {
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -239,7 +237,7 @@ teardown() {
   assert_file_not_exist $GITHUB_OUTPUT
   assert_not_exist $GITHUB_OUTPUT
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Build created:"
   assert_output --partial "https://buildkite.com/build-url"
@@ -264,7 +262,7 @@ teardown() {
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo 'curl: (22) The requested URL returned error: 401' >&2; exit 22"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "curl: (22) The requested URL returned error: 401"
   refute_output --partial "Buildkite API call failed"
@@ -284,7 +282,7 @@ teardown() {
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_HTML'; echo 'curl: (22) The requested URL returned error: 401' >&2; exit 22"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "curl: (22) The requested URL returned error: 401"
   refute_output --partial "Buildkite API call failed"
@@ -305,7 +303,7 @@ teardown() {
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'; echo 'curl: (22) The requested URL returned error: 401' >&2; exit 22"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "curl: (22) The requested URL returned error: 401"
   refute_output --partial "Buildkite API call failed"
@@ -325,7 +323,7 @@ teardown() {
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'; echo 'curl: (22) The requested URL returned error: 401' >&2; exit 22"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "curl: (22) The requested URL returned error: 401"
   assert_output --partial 'Buildkite API call failed: "Error Message."'
@@ -341,7 +339,7 @@ teardown() {
   export BUILD_ENV_VARS="broken"
   export GITHUB_EVENT_NAME="create"
 
-  run bash -c "${PWD}"/entrypoint.sh
+  run "${PWD}"/entrypoint.sh
 
   assert_output --partial "Error: BUILD_ENV_VARS provided invalid JSON: broken"
 
