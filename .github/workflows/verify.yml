@@ -1,0 +1,19 @@
+name: Verify
+
+on: push
+ 
+jobs: 
+  tests:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Verify that the Docker image for the action builds
+        run: docker build . --file Dockerfile      
+ 
+      - name: Integration test 1
+        uses: ./
+        with:
+          buildkite-token: 123
+          pipeline: "test-pipeline"
