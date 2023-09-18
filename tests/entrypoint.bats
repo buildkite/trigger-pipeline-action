@@ -1,6 +1,8 @@
 #!/usr/bin/env bats
 
-# load "${BATS_PLUGIN_PATH}/load.bash"
+load 'libs/bats-support/load'
+load 'libs/bats-assert/load'
+load 'libs/bats-file/load'
 
 # Uncomment to enable stub debugging
 # export CURL_STUB_DEBUG=/dev/tty
