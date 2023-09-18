@@ -1,4 +1,4 @@
-#!/usr/bin/env ./test/libs/bats/bin/bats
+#!/usr/bin/env
 
 # load "${BATS_PLUGIN_PATH}/load.bash"
 
