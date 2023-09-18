@@ -1,0 +1,32 @@
+name: Verify
+
+on: push
+ 
+jobs: 
+  tests:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Verify that the Docker image for the action builds
+        run: docker build . --file Dockerfile      
+ 
+      - name: Run action with minimal parameters
+        uses: ./
+        with:
+          buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
+          pipeline: "lzrinc/experimental-pipeline"    
+          message: Triggered from GHA using minimal parameters
+
+      - name: Run action with commit parameters
+        uses: ./
+        with:
+          buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
+          pipeline: "lzrinc/experimental-pipeline"             
+          branch: ${{ github.ref_name }}
+          commit: ${{ github.sha }}
+          message:  ":buildkite::github: 🚀🚀🚀 Triggered from GHA using Input args: ${{ github.event.head_commit.message }}"      
+          build_env_vars: '{"TRIGGERED_FROM_GHA": "true"}'
+          build_meta_data: '{"FOO": "bar"}'
+          ignore_pipeline_branch_filter: true          

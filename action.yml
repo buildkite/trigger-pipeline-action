@@ -16,8 +16,13 @@ inputs:
      required: false
    message:
      description: 'The message for the build'
+<<<<<<< Updated upstream
      required: false
    build-env-vars:
+=======
+     required: true
+   build_env_vars:
+>>>>>>> Stashed changes
      description: 'Additional environment variables to set on the build, in JSON format'
      required: false
    build-meta-data:
