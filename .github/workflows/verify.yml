@@ -1,0 +1,33 @@
+name: Verify
+
+on: push
+ 
+jobs:
+  static_checks:
+    name: Static Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: bash formatting
+        run: docker run -v "$PWD":/mnt -w /mnt mvdan/shfmt -ci -i 2 -l -d -- *.sh
+
+      - name: shellcheck
+        run: docker run -v "$PWD":/mnt -w /mnt koalaman/shellcheck -- *.sh test/*.bats
+
+      - name: misc files formatting
+        run: docker run -v "$PWD":/mnt -w /mnt tmknom/prettier --check .    
+
+  tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup BATS
+        uses: mig4/setup-bats@v1
+        with:
+          bats-version: 1.5.0
+
+      - name: Run Tests
+        run: bats --trace --print-output-on-failure tests/   
