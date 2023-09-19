@@ -49,16 +49,17 @@ function get_INPUT_BUILD_ENV_VARS_json() {
       <(echo "$2") \
       <(echo "$3")
   )
+
   echo "$INPUT_BUILD_ENV_VARS"
 }
 
 if [[ -z "${INPUT_BUILDKITE_API_ACCESS_TOKEN:-}" ]]; then
-  echo "You must set the INPUT_BUILDKITE_API_ACCESS_TOKEN environment variable (e.g. INPUT_BUILDKITE_API_ACCESS_TOKEN = \"xyz\")"
+  echo "You must set the buildkite_api_access_token input parameter (e.g. buildkite_api_access_token: \"1234567890\")"
   exit 1
 fi
 
 if [[ -z "${INPUT_PIPELINE:-}" ]]; then
-  echo "You must set the INPUT_PIPELINE environment variable (e.g. PIPELINE = \"my-org/my-pipeline\")"
+  echo "You must set the pipeline input parameter (e.g. pipeline: \"my-org/my-pipeline\")"
   exit 1
 fi
 
@@ -83,13 +84,14 @@ fi
 if [[ "$INPUT_BUILD_ENV_VARS" ]]; then
   if ! echo "$INPUT_BUILD_ENV_VARS" | jq empty; then
     echo ""
-    echo "Error: INPUT_BUILD_ENV_VARS provided invalid JSON: $INPUT_BUILD_ENV_VARS"
+    echo "Error: build_env_vars provided invalid JSON: $INPUT_BUILD_ENV_VARS" 
     exit 1
   fi
 fi
 
-INPUT_BUILD_ENV_VARS_JSON="$(get_INPUT_BUILD_ENV_VARS_json "$DELETE_EVENT_JSON" "$INPUT_BUILD_ENV_VARS" "$(get_github_env_json)")"
 
+INPUT_BUILD_ENV_VARS_JSON="$(get_INPUT_BUILD_ENV_VARS_json "$DELETE_EVENT_JSON" "$INPUT_BUILD_ENV_VARS" "$(get_github_env_json)")"
+ 
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
   jq -c -n \
@@ -118,16 +120,16 @@ fi
 if [[ "${INPUT_BUILD_META_DATA:-}" ]]; then
   if ! JSON=$(echo "$JSON" | jq -c --argjson INPUT_BUILD_META_DATA "$INPUT_BUILD_META_DATA" '. + {meta_data: $INPUT_BUILD_META_DATA}'); then
     echo ""
-    echo "Error: INPUT_BUILD_META_DATA provided invalid JSON: $INPUT_BUILD_META_DATA"
+    echo "Error: build_meta_data provided invalid JSON: $INPUT_BUILD_META_DATA"
     exit 1
   fi
 fi
 
-# Merge in INPUT_IGNORE_PIPELINE_BRANCH_FILTERs, if they specified a value
+# Merge in ignore_pipeline_branch_filters, if they specified a value
 if [[ "${INPUT_IGNORE_PIPELINE_BRANCH_FILTER:-}" ]]; then
-  if ! JSON=$(echo "$JSON" | jq -c --argjson INPUT_IGNORE_PIPELINE_BRANCH_FILTER "$INPUT_IGNORE_PIPELINE_BRANCH_FILTER" '. + {INPUT_IGNORE_PIPELINE_BRANCH_FILTERs: $INPUT_IGNORE_PIPELINE_BRANCH_FILTER}'); then
+  if ! JSON=$(echo "$JSON" | jq -c --argjson INPUT_IGNORE_PIPELINE_BRANCH_FILTER "$INPUT_IGNORE_PIPELINE_BRANCH_FILTER" '. + {ignore_pipeline_branch_filters: $INPUT_IGNORE_PIPELINE_BRANCH_FILTER}'); then
     echo ""
-    echo "Error: Could not set INPUT_IGNORE_PIPELINE_BRANCH_FILTERs"
+    echo "Error: Could not set ignore_pipeline_branch_filters"
     exit 1
   fi
 fi
