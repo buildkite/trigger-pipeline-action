@@ -49,6 +49,7 @@ function get_INPUT_BUILD_ENV_VARS_json() {
       <(echo "$2") \
       <(echo "$3")
   )
+
   echo "$INPUT_BUILD_ENV_VARS"
 }
 
@@ -83,13 +84,14 @@ fi
 if [[ "$INPUT_BUILD_ENV_VARS" ]]; then
   if ! echo "$INPUT_BUILD_ENV_VARS" | jq empty; then
     echo ""
-    echo "Error: INPUT_BUILD_ENV_VARS provided invalid JSON: $INPUT_BUILD_ENV_VARS"
+    echo "Error: INPUT_BUILD_ENV_VARS provided invalid JSON: $INPUT_BUILD_ENV_VARS" 
     exit 1
   fi
 fi
 
-INPUT_BUILD_ENV_VARS_JSON="$(get_INPUT_BUILD_ENV_VARS_json "$DELETE_EVENT_JSON" "$INPUT_BUILD_ENV_VARS" "$(get_github_env_json)")"
 
+INPUT_BUILD_ENV_VARS_JSON="$(get_INPUT_BUILD_ENV_VARS_json "$DELETE_EVENT_JSON" "$INPUT_BUILD_ENV_VARS" "$(get_github_env_json)")"
+ 
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
   jq -c -n \

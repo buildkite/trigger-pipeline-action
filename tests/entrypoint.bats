@@ -1,6 +1,6 @@
-#!/usr/bin/env bats
+#!/usr/bin/env
 
-load "${BATS_PLUGIN_PATH}/load.bash"
+# load "${BATS_PLUGIN_PATH}/load.bash"
 
 # Uncomment to enable stub debugging
 # export CURL_STUB_DEBUG=/dev/tty
@@ -29,8 +29,8 @@ teardown() {
 @test "Prints error and fails if \${{ inputs.pipeline }}  isn't set" {
   export BUILDKITE_API_ACCESS_TOKEN="123"
 
-  run "${PWD}"/entrypoint.sh
-  assert_output --partial "You must set the INPUT_PIPELINE environment variable"
+  run "${PWD}"/entrypoint.sh 
+  assert_output --partial "You must set the INPUT_PIPELINE environment variable" 
   assert_failure
 }
 
