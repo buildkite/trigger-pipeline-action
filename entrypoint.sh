@@ -125,11 +125,11 @@ if [[ "${INPUT_BUILD_META_DATA:-}" ]]; then
   fi
 fi
 
-# Merge in INPUT_IGNORE_PIPELINE_BRANCH_FILTERs, if they specified a value
+# Merge in ignore_pipeline_branch_filters, if they specified a value
 if [[ "${INPUT_IGNORE_PIPELINE_BRANCH_FILTER:-}" ]]; then
-  if ! JSON=$(echo "$JSON" | jq -c --argjson INPUT_IGNORE_PIPELINE_BRANCH_FILTER "$INPUT_IGNORE_PIPELINE_BRANCH_FILTER" '. + {INPUT_IGNORE_PIPELINE_BRANCH_FILTERs: $INPUT_IGNORE_PIPELINE_BRANCH_FILTER}'); then
+  if ! JSON=$(echo "$JSON" | jq -c --argjson INPUT_IGNORE_PIPELINE_BRANCH_FILTER "$INPUT_IGNORE_PIPELINE_BRANCH_FILTER" '. + {ignore_pipeline_branch_filters: $INPUT_IGNORE_PIPELINE_BRANCH_FILTER}'); then
     echo ""
-    echo "Error: Could not set ignore_pipeline_branch_filter"
+    echo "Error: Could not set ignore_pipeline_branch_filters"
     exit 1
   fi
 fi
