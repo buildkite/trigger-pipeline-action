@@ -9,13 +9,11 @@ jobs:
       steps:
   
         - name: Check out code
-          uses: actions/checkout@v3
+          uses: actions/checkout@v3 
 
-        - name: Setup BATS
-          uses: mig4/setup-bats@v1
-          with:
-            bats-version: 1.2.1
-  
         - name: Verify that the Docker image for the action builds
-          run: docker build . --file Dockerfile            
+          run: docker build . --file Dockerfile         
+        
+        - name: Run unit test for the action
+          run: docker run --rm -ti -v "$PWD":/plugin buildkite/plugin-tester:v4.0.0
    
