@@ -15,30 +15,31 @@ setup() {
 }
 
 teardown() {
-  unset BUILDKITE_API_ACCESS_TOKEN
-  unset PIPELINE
+  unset INPUT_BUILDKITE_API_ACCESS_TOKEN
+  unset INPUT_PIPELINE
   if [[ -f "$HOME/push.json" ]]; then rm "$HOME/push.json"; fi
 }
 
-@test "Prints error and fails if \$BUILDKITE_API_ACCESS_TOKEN isn't set" {
+@test "Prints error and fails if \${{ inputs.buildkite_api_access_token }} isn't set" {
+  
   run "${PWD}"/entrypoint.sh
-
-  assert_output --partial "You must set the BUILDKITE_API_ACCESS_TOKEN environment variable"
+  assert_output --partial "You must set the buildkite_api_access_token input parameter"
   assert_failure
 }
 
-@test "Prints error and fails if \$PIPELINE isn't set" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
+@test "Prints error and fails if \${{ inputs.pipeline }}  isn't set" {
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
 
-  run "${PWD}"/entrypoint.sh
-
-  assert_output --partial "You must set the PIPELINE environment variable"
+  run "${PWD}"/entrypoint.sh 
+  assert_output --partial "You must set the pipeline input parameter" 
   assert_failure
 }
 
 @test "Creates a build with defaults" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
@@ -58,10 +59,11 @@ teardown() {
   unstub curl
 }
 
-@test "Creates a build with commit from \$COMMIT" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
-  export COMMIT="custom-commit"
+@test "Creates a build with commit from \${{ inputs.commit }}" {
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_COMMIT="custom-commit"
   export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"custom-commit","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
@@ -81,10 +83,11 @@ teardown() {
   unstub curl
 }
 
-@test "Creates a build with branch from \$BRANCH" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
-  export BRANCH="custom-branch"
+@test "Creates a build with branch from \${{ inputs.branch }}" {
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_BRANCH="custom-branch"
   export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"custom-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
@@ -105,8 +108,9 @@ teardown() {
 }
 
 @test "Creates a build from pull request" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_PATH="tests/pullrequest.json"
   export GITHUB_EVENT_NAME="create"
 
@@ -127,10 +131,11 @@ teardown() {
   unstub curl
 }
 
-@test "Creates a build with branch from \$MESSAGE" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
-  export MESSAGE="A custom message"
+@test "Creates a build with branch from \${{ inputs.message }}" {
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_MESSAGE="A custom message"
   export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"A custom message","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
@@ -150,10 +155,11 @@ teardown() {
   unstub curl
 }
 
-@test "Creates a build with build env vars from \$BUILD_ENV_VARS" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
-  export BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
+@test "Creates a build with build env vars from \${{ inputs.build_env_vars }}" {
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
   export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar","GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
@@ -173,10 +179,10 @@ teardown() {
   unstub curl
 }
 
-@test "Creates a build with build meta-data vars from \$BUILD_META_DATA" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
-  export BUILD_META_DATA="{\"FOO\": \"bar\"}"
+@test "Creates a build with build meta-data vars from \${{ inputs.build_meta_data }}" { 
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_BUILD_META_DATA="{\"FOO\": \"bar\"}"
   export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"meta_data":{"FOO":"bar"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
@@ -196,11 +202,11 @@ teardown() {
   unstub curl
 }
 
-@test "Creates a build with ignore_pipeline_branch_filters set to true from \$IGNORE_PIPELINE_BRANCH_FILTER" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
-  export BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
-  export IGNORE_PIPELINE_BRANCH_FILTER="true"
+@test "Creates a build with ignore_pipeline_branch_filters set to true from \${{ inputs.ignore_pipeline_branch_filter }}" { 
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
+  export INPUT_IGNORE_PIPELINE_BRANCH_FILTER="true"
   export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"ignore_pipeline_branch_filters":true,"env":{"FOO":"bar","GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
@@ -220,12 +226,12 @@ teardown() {
   unstub curl
 }
 
-@test "Writes outputs to \$GITHUB_OUTPUT file if defined" {
+@test "Writes outputs to \$GITHUB_OUTPUT file if defined" { 
   TEST_TEMP_DIR="$(temp_make)"
 
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
-  export BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
   export GITHUB_OUTPUT=$TEST_TEMP_DIR/github_output_file
   export GITHUB_EVENT_NAME="create"
 
@@ -254,8 +260,9 @@ teardown() {
 }
 
 @test "Prints curl error on HTTP error" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
@@ -273,8 +280,9 @@ teardown() {
 }
 
 @test "Prints curl error and ignores non-JSON response on HTTP error" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
@@ -294,8 +302,9 @@ teardown() {
 }
 
 @test "Prints curl error but not null JSON response message on HTTP error" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
@@ -314,8 +323,9 @@ teardown() {
 }
 
 @test "Prints curl error and JSON response message on HTTP error" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_NAME="create"
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
@@ -333,35 +343,36 @@ teardown() {
   unstub curl
 }
 
-@test "Prints error and fails if \$BUILD_ENV_VARS is not valid JSON" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
-  export BUILD_ENV_VARS="broken"
+@test "Prints error and fails if \${{ inputs.build_env_vars }} is not valid JSON" { 
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_BUILD_ENV_VARS="broken"
   export GITHUB_EVENT_NAME="create"
 
   run "${PWD}"/entrypoint.sh
 
-  assert_output --partial "Error: BUILD_ENV_VARS provided invalid JSON: broken"
+  assert_output --partial "Error: build_env_vars provided invalid JSON: broken"
 
   assert_failure
 }
 
-@test "Prints error and fails if \$BUILD_META_DATA is not valid JSON" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
-  export BUILD_META_DATA="broken"
+@test "Prints error and fails if \${{ inputs.build_meta_data }} is not valid JSON" {
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_BUILD_META_DATA="broken"
   export GITHUB_EVENT_NAME="create"
 
   run $PWD/entrypoint.sh
 
-  assert_output --partial "Error: BUILD_META_DATA provided invalid JSON: broken"
+  assert_output --partial "Error: build_meta_data provided invalid JSON: broken"
 
   assert_failure
 }
 
 @test "Sets DELETED_EVENT_REF on delete event" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_ACTION="delete"
   export GITHUB_EVENT_NAME="delete"
 
@@ -380,10 +391,11 @@ teardown() {
   unstub curl
 }
 
-@test "Combines DELETED_EVENT_REF and BUILD_ENV_VARS correctly" {
-  export BUILDKITE_API_ACCESS_TOKEN="123"
-  export PIPELINE="my-org/my-pipeline"
-  export BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
+@test "Combines DELETED_EVENT_REF and build_env_vars correctly" {
+  
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
   export GITHUB_ACTION="delete"
   export GITHUB_EVENT_NAME="delete"
 
