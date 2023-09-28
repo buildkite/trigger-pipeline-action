@@ -23,7 +23,7 @@ on: [push]
 
 steps:
   - name: Trigger a Buildkite Build
-    uses: "buildkite/trigger-pipeline-action@v1.6.0"
+    uses: "buildkite/trigger-pipeline-action"
     with:
       buildkite_api_access_token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
       pipeline: "my-org/my-deploy-pipeline"
@@ -34,6 +34,55 @@ steps:
       build_meta_data: '{"FOO": "bar"}'
       ignore_pipeline_branch_filter: true     
 ```
+
+From v1.6.0, the following input parameters `buildkite-token`, `build-env-vars`, `build-meta-data` and `ignore-pipeline-branch-filter` were supported. But these will be deprecated from 2.0.0 onwards and renamed to follow GHA naming convention.
+
+```
+ on: [push]
+steps:
+   - name: Trigger a Buildkite Build
+     uses: "buildkite/trigger-pipeline-action@v1.6.0"
+     with:
+       buildkite-token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
+       pipeline: "my-org/my-deploy-pipeline"
+       branch: "master"
+       commit: "HEAD"
+       message:  ":github: Triggered from a GitHub Action"
+       build-env-vars: '{"TRIGGERED_FROM_GHA": "true"}'
+       build-meta-data: '{"FOO": "bar"}'
+       ignore-pipeline-branch-filter: true     
+ ```
+
+### Configuration as Environment Variables
+
+This is currently supported only up to v1.6.0 and will be deprecated from 2.0.0 onwards.
+
+Here's an example workflow that creates a new Buildkite build on every commit by setting environment variables:
+
+```
+on: [push]
+
+steps:
+  - name: Trigger a Buildkite Build
+    uses: "buildkite/trigger-pipeline-action@v1.6.0"
+    env:
+      BUILDKITE_API_ACCESS_TOKEN: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
+      PIPELINE: "my-org/my-deploy-pipeline"
+      BRANCH: "master"
+      COMMIT: "HEAD"
+      MESSAGE:  ":github: Triggered from a GitHub Action"
+```
+The following environment variable options can be configured:
+
+ |Env var|Description|Default|
+ |-|-|-|
+ |PIPELINE|The pipeline to create a build on, in the format `<org-slug>/<pipeline-slug>`||
+ |COMMIT|The commit SHA of the build. Optional.|`$GITHUB_SHA`|
+ |BRANCH|The branch of the build. Optional.|`$GITHUB_REF`|
+ |MESSAGE|The message for the build. Optional.||
+ |BUILD_ENV_VARS|Additional environment variables to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
+ |BUILD_META_DATA|Meta data to set on the build, in JSON format. e.g. `{"FOO": "bar"}`. Optional. ||
+ |IGNORE_PIPELINE_BRANCH_FILTER | Ignore pipeline branch filtering when creating a new build. true or false. Optional. ||
 
 ## Outputs
 
