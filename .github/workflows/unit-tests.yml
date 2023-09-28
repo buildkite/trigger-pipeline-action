@@ -24,4 +24,5 @@ jobs:
           with:
             image: buildkite/plugin-tester:v4.0.0
             options: --rm -v ${{ github.workspace }}:/plugin 
+            run: bats tests/. 
    
