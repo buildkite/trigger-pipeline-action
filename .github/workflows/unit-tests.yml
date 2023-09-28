@@ -23,5 +23,5 @@ jobs:
         - uses: addnab/docker-run-action@v3
           with:
             image: buildkite/plugin-tester:v4.0.0
-            options: --rm -v "$PWD":/plugin 
+            options: --rm -v ${{ github.workspace }}:/plugin 
    
