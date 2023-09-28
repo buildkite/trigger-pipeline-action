@@ -16,8 +16,12 @@ jobs:
      
     tests:
       name: unit-test
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-latest    
       steps:
-        - name: Run unit test for the action
-          run: docker run --rm -v "$PWD":/plugin buildkite/plugin-tester:v4.0.0
+        - name: checkout base image 
+          uses: actions/checkout@v3  
+        - uses: addnab/docker-run-action@v3
+          with:
+            image: buildkite/plugin-tester:v4.0.0
+            options: --rm -v "$PWD":/plugin 
    
