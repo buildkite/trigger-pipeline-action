@@ -226,6 +226,31 @@ teardown() {
   unstub curl
 }
 
+@test "Creates a build with send_pull_request set to false from \${{ inputs.send_pull_request }}" { 
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
+  export INPUT_SEND_PULL_REQUEST="false"
+  export GITHUB_EVENT_NAME="create"
+  export GITHUB_EVENT_PATH="tests/pullrequest.json"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"FOO":"bar","GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
+
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+
+  run $PWD/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "https://buildkite.com/build-url"
+  assert_output --partial "::set-output name=json::$RESPONSE_JSON"
+  assert_output --partial "::set-output name=url::https://buildkite.com/build-url"
+
+  assert_success
+
+  unstub curl
+}
+
 @test "Writes outputs to \$GITHUB_OUTPUT file if defined" { 
   TEST_TEMP_DIR="$(temp_make)"
 

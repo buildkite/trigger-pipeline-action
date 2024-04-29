@@ -33,6 +33,7 @@ steps:
       build_env_vars: '{"TRIGGERED_FROM_GHA": "true"}'
       build_meta_data: '{"FOO": "bar"}'
       ignore_pipeline_branch_filter: true     
+      send_pull_request: true
 ```
 
 ## Outputs

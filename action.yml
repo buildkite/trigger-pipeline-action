@@ -18,6 +18,9 @@ inputs:
    message:
      description: 'The message for the build'
      required: false
+   send_pull_request:
+     description: 'Whether to set PULL_REQUEST_ID, which sets BUILDKITE_PULL_REQUEST on the build. Does not work for cross-repo builds. Defaults to true'
+     required: false
    build_env_vars:
      description: 'Additional environment variables to set on the build, in JSON format'
      required: false

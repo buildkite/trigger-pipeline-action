@@ -72,7 +72,10 @@ MESSAGE="${INPUT_MESSAGE:-}"
 
 NAME=$(jq -r ".pusher.name" "$GITHUB_EVENT_PATH")
 EMAIL=$(jq -r ".pusher.email" "$GITHUB_EVENT_PATH")
-PULL_REQUEST_ID=$(jq -r '.pull_request.number // ""' "$GITHUB_EVENT_PATH")
+PULL_REQUEST_ID=""
+if [[ "${INPUT_SEND_PULL_REQUEST:-true}" == 'true' ]]; then
+  PULL_REQUEST_ID=$(jq -r '.pull_request.number // ""' "$GITHUB_EVENT_PATH")
+fi
 
 INPUT_BUILD_ENV_VARS="${INPUT_BUILD_ENV_VARS:-}"
 
