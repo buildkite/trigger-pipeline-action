@@ -73,6 +73,7 @@ MESSAGE="${INPUT_MESSAGE:-}"
 NAME=$(jq -r ".pusher.name" "$GITHUB_EVENT_PATH")
 EMAIL=$(jq -r ".pusher.email" "$GITHUB_EVENT_PATH")
 PULL_REQUEST_ID=""
+PULL_REQUEST_BASE_BRANCH="${INPUT_PULL_REQUEST_BASE_BRANCH:-}"
 if [[ "${INPUT_SEND_PULL_REQUEST:-true}" == 'true' ]]; then
   PULL_REQUEST_ID=$(jq -r '.pull_request.number // ""' "$GITHUB_EVENT_PATH")
 fi
@@ -114,9 +115,12 @@ JSON=$(
     }'
 )
 
-# Link pull request if pull request id is specified
+# Link pull request and pull request base branch if pull request id is specified
 if [[ -n "$PULL_REQUEST_ID" ]]; then
   JSON=$(echo "$JSON" | jq -c --arg PULL_REQUEST_ID "$PULL_REQUEST_ID" '. + {pull_request_id: $PULL_REQUEST_ID}')
+  if [[ -n "$PULL_REQUEST_BASE_BRANCH" ]]; then
+    JSON=$(echo "$JSON" | jq -c --arg PULL_REQUEST_BASE_BRANCH "$PULL_REQUEST_BASE_BRANCH" '. + {pull_request_base_branch: $PULL_REQUEST_BASE_BRANCH}')
+  fi
 fi
 
 # Set build meta data, if specified
