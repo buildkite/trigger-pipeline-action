@@ -111,10 +111,11 @@ teardown() {
   
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_PULL_REQUEST_BASE_BRANCH="b-branch"
   export GITHUB_EVENT_PATH="tests/pullrequest.json"
   export GITHUB_EVENT_NAME="create"
 
-  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"pull_request_id":"1337","env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"pull_request_id":"1337","pull_request_base_branch":"b-branch","env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
   RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
 
   stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"

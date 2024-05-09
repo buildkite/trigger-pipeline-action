@@ -21,6 +21,9 @@ inputs:
    send_pull_request:
      description: 'Whether to set PULL_REQUEST_ID, which sets BUILDKITE_PULL_REQUEST on the build. Does not work for cross-repo builds. Defaults to true'
      required: false
+   pull_request_base_branch:
+     description: 'For a pull request build, the base branch of the pull request.'
+     required: false
    build_env_vars:
      description: 'Additional environment variables to set on the build, in JSON format'
      required: false
