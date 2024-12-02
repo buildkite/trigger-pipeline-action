@@ -23,7 +23,7 @@ on: [push]
 
 steps:
   - name: Trigger a Buildkite Build
-    uses: "buildkite/trigger-pipeline-action@v2.1.0"
+    uses: "buildkite/trigger-pipeline-action@v2.3.0"
     with:
       buildkite_api_access_token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }} 
       pipeline: "my-org/my-deploy-pipeline"
