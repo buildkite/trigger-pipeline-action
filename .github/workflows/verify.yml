@@ -12,27 +12,19 @@ jobs:
       - name: Verify that the Docker image for the action builds
         run: docker build . --file Dockerfile      
  
-      - name: Run action with minimal parameters
-        uses: ./
+      - uses: mcncl/trigger-pipeline-action@master
+        id: buildkite
         with:
-          buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
-          pipeline: "lzrinc/experimental-pipeline"    
-          message: Triggered from GHA using minimal parameters
-          branch: master
-          commit: HEAD
+          buildkite_api_access_token: ${{ secrets.BUILDKITE_TOKEN }}
+          pipeline: "testkite/basic-pipeline"
+          wait: true
+          wait_interval: 10
+          wait_timeout: 300
 
-      - name: Run action with all parameters
-        uses: ./
-        id: tests
-        with:
-          buildkite_api_access_token:  ${{ secrets.BUILDKITE_API_ACCESS_TOKEN }} 
-          pipeline: "lzrinc/experimental-pipeline"             
-          branch: dev
-          commit: HEAD
-          message:  ":buildkite::github: 🚀🚀🚀 Triggered from GHA using commit message: ${{ github.event.head_commit.message }}"      
-          build_env_vars: '{"TRIGGERED_FROM_GHA": "true"}'
-          build_meta_data: '{"FOO": "bar"}'
-          ignore_pipeline_branch_filter: true          
+      - name: Check Build State
+        run: |
+          echo "Build URL: ${{ steps.buildkite.outputs.url }}"
+          echo "Build State: ${{ steps.buildkite.outputs.state }}"
       
       - name: Verify output
         run: echo ${{join(steps.tests.outputs.*, '\n')}} 

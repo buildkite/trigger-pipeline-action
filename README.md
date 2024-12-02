@@ -34,6 +34,9 @@ steps:
       build_meta_data: '{"FOO": "bar"}'
       ignore_pipeline_branch_filter: true     
       send_pull_request: true
+      wait: true
+      wait_interval: 10
+      wait_timeout: 300
 ```
 
 ## Outputs
