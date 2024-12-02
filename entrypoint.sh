@@ -53,6 +53,75 @@ function get_INPUT_BUILD_ENV_VARS_json() {
   echo "$INPUT_BUILD_ENV_VARS"
 }
 
+function wait_for_build() {
+  local BUILD_ID
+  local ORG_SLUG
+  local PIPELINE_SLUG
+  local WAIT_INTERVAL
+  local WAIT_TIMEOUT
+  local START_TIME
+  local CURRENT_TIME
+  local ELAPSED_TIME
+  local BUILD_STATE
+  
+  BUILD_ID="$1"
+  ORG_SLUG="$2"
+  PIPELINE_SLUG="$3"
+  WAIT_INTERVAL="${4:-10}"
+  WAIT_TIMEOUT="${5:-3600}"
+  
+  echo "Waiting for build $BUILD_ID to complete..."
+  START_TIME=$(date +%s)
+  
+  while true; do
+    CURRENT_TIME=$(date +%s)
+    ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
+    
+    if [ "$ELAPSED_TIME" -gt "$WAIT_TIMEOUT" ]; then
+      echo "Timeout reached after ${WAIT_TIMEOUT} seconds"
+      return 1
+    fi
+    
+    BUILD_RESPONSE=$(curl \
+      --fail-with-body \
+      --silent \
+      --show-error \
+      -H "Authorization: Bearer ${INPUT_BUILDKITE_API_ACCESS_TOKEN}" \
+      "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds/${BUILD_ID}")
+    
+    BUILD_STATE=$(echo "$BUILD_RESPONSE" | jq -r .state)
+    
+    case "$BUILD_STATE" in
+      "passed")
+        echo "Build passed!"
+        echo "build_state=$BUILD_STATE" >>"${GITHUB_OUTPUT}"
+        return 0
+        ;;
+      "failed"|"canceled"|"skipped"|"blocked")
+        echo "Build finished with state: $BUILD_STATE"
+        echo "build_state=$BUILD_STATE" >>"${GITHUB_OUTPUT}"
+        return 1
+        ;;
+      "running"|"scheduled"|"waiting"|"waiting_failed")
+        echo "Build status: $BUILD_STATE. Waiting ${WAIT_INTERVAL} seconds..."
+        sleep "$WAIT_INTERVAL"
+        ;;
+      *)
+        echo "Unknown build state: $BUILD_STATE"
+        echo "build_state=$BUILD_STATE" >>"${GITHUB_OUTPUT}"
+        return 1
+        ;;
+    esac
+  done
+}
+
+if [[ "${INPUT_WAIT:-false}" == 'true' ]]; then
+  if ! wait_for_build "$BUILD_NUMBER" "$ORG_SLUG" "$PIPELINE_SLUG" "${INPUT_WAIT_INTERVAL:-10}" "${INPUT_WAIT_TIMEOUT:-3600}"; then
+    echo "Build did not complete successfully"
+    exit 1
+  fi
+fi
+
 if [[ -z "${INPUT_BUILDKITE_API_ACCESS_TOKEN:-}" ]]; then
   echo "You must set the buildkite_api_access_token input parameter (e.g. buildkite_api_access_token: \"1234567890\")"
   exit 1
@@ -65,6 +134,7 @@ fi
 
 ORG_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f1)
 PIPELINE_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f2)
+BUILD_NUMBER=$(echo "$RESPONSE" | jq --raw-output ".number")
 
 COMMIT="${INPUT_COMMIT:-${GITHUB_SHA}}"
 BRANCH="${INPUT_BRANCH:-${GITHUB_REF#"refs/heads/"}}"

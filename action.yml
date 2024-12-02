@@ -33,6 +33,18 @@ inputs:
    ignore_pipeline_branch_filter:
      description: 'Ignore pipeline branch filtering when creating a new build. true or false'
      required: false
+   wait:
+     description: 'Wait for the build to finish before completing. true or false'
+     required: false
+     default: 'false'
+   wait_interval:
+     description: 'Interval in seconds between build status checks when waiting'
+     required: false
+     default: '10'
+   wait_timeout:
+     description: 'Maximum time in seconds to wait for build completion'
+     required: false
+     default: '3600'
 
 runs:
   using: 'docker'
@@ -40,3 +52,11 @@ runs:
 branding:
   icon: 'send'
   color: 'green'
+
+outputs:
+  json:
+    description: 'The full JSON response from the Buildkite API'
+  url:
+    description: 'The URL of the build on Buildkite'
+  state:
+    description: 'The final state of the build (when wait=true)'
