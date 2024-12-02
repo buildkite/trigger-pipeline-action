@@ -115,13 +115,6 @@ function wait_for_build() {
   done
 }
 
-if [[ "${INPUT_WAIT:-false}" == 'true' ]]; then
-  if ! wait_for_build "$BUILD_NUMBER" "$ORG_SLUG" "$PIPELINE_SLUG" "${INPUT_WAIT_INTERVAL:-10}" "${INPUT_WAIT_TIMEOUT:-3600}"; then
-    echo "Build did not complete successfully"
-    exit 1
-  fi
-fi
-
 if [[ -z "${INPUT_BUILDKITE_API_ACCESS_TOKEN:-}" ]]; then
   echo "You must set the buildkite_api_access_token input parameter (e.g. buildkite_api_access_token: \"1234567890\")"
   exit 1
@@ -134,7 +127,6 @@ fi
 
 ORG_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f1)
 PIPELINE_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f2)
-BUILD_NUMBER=$(echo "$RESPONSE" | jq --raw-output ".number")
 
 COMMIT="${INPUT_COMMIT:-${GITHUB_SHA}}"
 BRANCH="${INPUT_BRANCH:-${GITHUB_REF#"refs/heads/"}}"
@@ -245,6 +237,17 @@ echo ""
 echo "Build created:"
 URL=$(echo "$RESPONSE" | jq --raw-output ".web_url")
 echo "$URL"
+
+# Extract build number from response
+BUILD_NUMBER=$(echo "$RESPONSE" | jq --raw-output ".number")
+
+# Wait for build if requested
+if [[ "${INPUT_WAIT:-false}" == 'true' ]]; then
+  if ! wait_for_build "$BUILD_NUMBER" "$ORG_SLUG" "$PIPELINE_SLUG" "${INPUT_WAIT_INTERVAL:-10}" "${INPUT_WAIT_TIMEOUT:-3600}"; then
+    echo "Build did not complete successfully"
+    exit 1
+  fi
+fi
 
 # Provide JSON and Web URL as outputs for downstream actions
 # use environment variable $GITHUB_OUTPUT, or fall back to deprecated set-output command
