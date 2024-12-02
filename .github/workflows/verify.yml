@@ -12,7 +12,7 @@ jobs:
       - name: Verify that the Docker image for the action builds
         run: docker build . --file Dockerfile      
  
-      - uses: mcncl/trigger-pipeline-action
+      - uses: mcncl/trigger-pipeline-action@master
         id: buildkite
         with:
           buildkite_api_access_token: ${{ secrets.BUILDKITE_TOKEN }}
