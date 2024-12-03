@@ -77,7 +77,6 @@ docker run --rm -ti -v "$PWD":/plugin buildkite/plugin-tester:v4.0.0
 
 ## Roadmap
 
-* Add a `WAIT` option for waiting for the Buildkite build to finish.
 * Support other properties available in the [Buildkite Builds REST API](https://buildkite.com/docs/apis/rest-api/builds#create-a-build), such as environment variables and meta-data.
 
 Contributions welcome! ❤️
