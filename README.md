@@ -11,13 +11,13 @@ A [GitHub Action](https://github.com/actions) for triggering a build on a [Build
 
 Create a [Buildkite API Access Token](https://buildkite.com/docs/apis/rest-api#authentication) with `write_builds` scope, and save it to your GitHub repository’s **Settings → Secrets**. Then you can configure your Actions workflow with the details of the pipeline to be triggered, and the settings for the build.
 
+## Inputs
 
-## Configuration Options
+Refer to the [action.yml](./action.yml) for more detailed information on parameter use.
+ 
+### Example
 
-### Configuration as Input Parameters
-
-The following workflow creates a new Buildkite build to the target `pipeline` on every commit.
-
+The following workflow creates a new Buildkite build to the target `pipeline` on every commit. 
 ```
 on: [push]
 
