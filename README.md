@@ -14,11 +14,12 @@ Create a [Buildkite API Access Token](https://buildkite.com/docs/apis/rest-api#a
 ## Inputs
 
 Refer to the [action.yml](./action.yml) for more detailed information on parameter use.
- 
+
 ### Example
 
-The following workflow creates a new Buildkite build to the target `pipeline` on every commit. 
-```
+The following workflow creates a new Buildkite build to the target `pipeline` on every commit.
+
+```yaml
 on: [push]
 
 steps:
@@ -47,7 +48,6 @@ The following outputs are provided by the action:
 |-|-|
 |url|The URL of the Buildkite build.|
 |json|The JSON response returned by the Buildkite API.|
-
 
 ## Development
 
