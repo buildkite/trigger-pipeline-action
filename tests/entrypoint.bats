@@ -446,6 +446,7 @@ teardown() {
   export INPUT_WAIT="true"
   export INPUT_WAIT_INTERVAL="1"
   export GITHUB_EVENT_NAME="create"
+  export GITHUB_OUTPUT=$TEST_TEMP_DIR/github_output_file
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
   CREATE_RESPONSE='{"web_url": "https://buildkite.com/build-url", "number": "123"}'
@@ -476,6 +477,7 @@ teardown() {
   export INPUT_WAIT="true"
   export INPUT_WAIT_INTERVAL="1"
   export GITHUB_EVENT_NAME="create"
+  export GITHUB_OUTPUT=$TEST_TEMP_DIR/github_output_file
 
   EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
   CREATE_RESPONSE='{"web_url": "https://buildkite.com/build-url", "number": "123"}'
