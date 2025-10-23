@@ -45,6 +45,12 @@ inputs:
      description: 'Maximum time in seconds to wait for build completion'
      required: false
      default: '3600'
+   commit_author_name:
+     description: 'Default commit author name to use if not available from event payload (useful for events without pusher field like status events)'
+     required: false
+   commit_author_email:
+     description: 'Default commit author email to use if not available from event payload (useful for events without pusher field like status events)'
+     required: false
 
 runs:
   using: 'docker'

@@ -42,6 +42,56 @@ function get_github_env_json() {
   echo "$GITHUB_EVENT_JSON"
 }
 
+function get_author_name() {
+  local NAME
+
+  # 1. Try pusher.name from event (existing behavior)
+  if NAME=$(jq -r ".pusher.name // empty" "$GITHUB_EVENT_PATH") && [[ -n "$NAME" ]]; then
+    : # NAME is already set
+  # 2. Try head_commit.author.name from event (for push events)
+  elif NAME=$(jq -r ".head_commit.author.name // empty" "$GITHUB_EVENT_PATH") && [[ -n "$NAME" ]]; then
+    : # NAME is already set
+  # 3. Try commit.commit.author.name from event (for status events)
+  elif NAME=$(jq -r ".commit.commit.author.name // empty" "$GITHUB_EVENT_PATH") && [[ -n "$NAME" ]]; then
+    : # NAME is already set
+  # 4. Use default input parameter if provided
+  elif [[ -n "${INPUT_COMMIT_AUTHOR_NAME:-}" ]]; then
+    NAME="$INPUT_COMMIT_AUTHOR_NAME"
+  # 5. Try to get from git commit (if we're in a git repo and commit exists)
+  elif [[ -d .git ]] && NAME=$(git show -s --format=%an "${COMMIT}" 2>/dev/null) && [[ -n "$NAME" ]]; then
+    : # NAME is already set
+  else
+    NAME=""
+  fi
+
+  echo "$NAME"
+}
+
+function get_author_email() {
+  local EMAIL
+
+  # 1. Try pusher.email from event (existing behavior)
+  if EMAIL=$(jq -r ".pusher.email // empty" "$GITHUB_EVENT_PATH") && [[ -n "$EMAIL" ]]; then
+    : # EMAIL is already set
+  # 2. Try head_commit.author.email from event (for push events)
+  elif EMAIL=$(jq -r ".head_commit.author.email // empty" "$GITHUB_EVENT_PATH") && [[ -n "$EMAIL" ]]; then
+    : # EMAIL is already set
+  # 3. Try commit.commit.author.email from event (for status events)
+  elif EMAIL=$(jq -r ".commit.commit.author.email // empty" "$GITHUB_EVENT_PATH") && [[ -n "$EMAIL" ]]; then
+    : # EMAIL is already set
+  # 4. Use default input parameter if provided
+  elif [[ -n "${INPUT_COMMIT_AUTHOR_EMAIL:-}" ]]; then
+    EMAIL="$INPUT_COMMIT_AUTHOR_EMAIL"
+  # 5. Try to get from git commit (if we're in a git repo and commit exists)
+  elif [[ -d .git ]] && EMAIL=$(git show -s --format=%ae "${COMMIT}" 2>/dev/null) && [[ -n "$EMAIL" ]]; then
+    : # EMAIL is already set
+  else
+    EMAIL=""
+  fi
+
+  echo "$EMAIL"
+}
+
 function get_INPUT_BUILD_ENV_VARS_json() {
   INPUT_BUILD_ENV_VARS=$(
     jq -c -s 'add' \
@@ -132,8 +182,8 @@ COMMIT="${INPUT_COMMIT:-${GITHUB_SHA}}"
 BRANCH="${INPUT_BRANCH:-${GITHUB_REF#"refs/heads/"}}"
 MESSAGE="${INPUT_MESSAGE:-}"
 
-NAME=$(jq -r ".pusher.name" "$GITHUB_EVENT_PATH")
-EMAIL=$(jq -r ".pusher.email" "$GITHUB_EVENT_PATH")
+NAME=$(get_author_name)
+EMAIL=$(get_author_email)
 PULL_REQUEST_ID=""
 PULL_REQUEST_BASE_BRANCH="${INPUT_PULL_REQUEST_BASE_BRANCH:-}"
 if [[ "${INPUT_SEND_PULL_REQUEST:-true}" == 'true' ]]; then
