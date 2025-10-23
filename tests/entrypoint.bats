@@ -502,3 +502,79 @@ teardown() {
 
   unstub curl
 }
+
+@test "Creates a build with author from commit.commit when pusher is not available (status events)" {
+
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export GITHUB_EVENT_PATH="tests/status.json"
+  export GITHUB_EVENT_NAME="status"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"Status Author","email":"status@author.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
+
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "https://buildkite.com/build-url"
+  assert_output --partial "::set-output name=json::$RESPONSE_JSON"
+  assert_output --partial "::set-output name=url::https://buildkite.com/build-url"
+
+  assert_success
+
+  unstub curl
+}
+
+@test "Creates a build with author from default parameters when no author in event" {
+
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_COMMIT_AUTHOR_NAME="Default Name"
+  export INPUT_COMMIT_AUTHOR_EMAIL="default@email.com"
+  export GITHUB_EVENT_PATH="tests/no-author.json"
+  export GITHUB_EVENT_NAME="create"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"Default Name","email":"default@email.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
+
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "https://buildkite.com/build-url"
+  assert_output --partial "::set-output name=json::$RESPONSE_JSON"
+  assert_output --partial "::set-output name=url::https://buildkite.com/build-url"
+
+  assert_success
+
+  unstub curl
+}
+
+@test "Pusher fields take precedence over default parameters" {
+
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_COMMIT_AUTHOR_NAME="Default Name"
+  export INPUT_COMMIT_AUTHOR_EMAIL="default@email.com"
+  export GITHUB_EVENT_PATH="tests/push.json"
+  export GITHUB_EVENT_NAME="push"
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
+  RESPONSE_JSON='{"web_url": "https://buildkite.com/build-url"}'
+
+  stub curl "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$RESPONSE_JSON'"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "https://buildkite.com/build-url"
+  assert_output --partial "::set-output name=json::$RESPONSE_JSON"
+  assert_output --partial "::set-output name=url::https://buildkite.com/build-url"
+
+  assert_success
+
+  unstub curl
+}
