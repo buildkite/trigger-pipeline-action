@@ -15,6 +15,18 @@ Create a [Buildkite API Access Token](https://buildkite.com/docs/apis/rest-api#a
 
 Refer to the [action.yml](./action.yml) for more detailed information on parameter use.
 
+### Author Information
+
+The action automatically determines the commit author from the GitHub event payload using the following priority order:
+
+1. `.pusher.name` and `.pusher.email` from the event payload (existing behavior)
+2. `.head_commit.author.name` and `.head_commit.author.email` from the event payload (for push events)
+3. `.commit.commit.author.name` and `.commit.commit.author.email` from the event payload (for status events)
+4. `commit_author_name` and `commit_author_email` input parameters (user-provided defaults)
+5. Git commit information from the repository (last resort)
+
+**Note:** Some GitHub events (like `status` events) don't include a `pusher` field. The action will automatically fall back through these options to find author information. You can provide default values using the `commit_author_name` and `commit_author_email` parameters if the event payload doesn't contain author information.
+
 ### Example
 
 The following workflow creates a new Buildkite build to the target `pipeline` on every commit.
@@ -38,6 +50,23 @@ steps:
       wait: true
       wait_interval: 10
       wait_timeout: 300
+```
+
+#### Example with Default Author Values
+
+For events without a `pusher` field (like `status` events), you can provide default author values:
+
+```yaml
+on: [status]
+
+steps:
+  - name: Trigger a Buildkite Build
+    uses: "buildkite/trigger-pipeline-action@v2.3.0"
+    with:
+      buildkite_api_access_token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }}
+      pipeline: "my-org/my-deploy-pipeline"
+      commit_author_name: ${{ github.event.commit.commit.author.name }}
+      commit_author_email: ${{ github.event.commit.commit.author.email }}
 ```
 
 ## Outputs
