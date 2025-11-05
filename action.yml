@@ -45,6 +45,14 @@ inputs:
      description: 'Maximum time in seconds to wait for build completion'
      required: false
      default: '3600'
+   retry_max_attempts:
+     description: 'Maximum number of retry attempts for API calls during build status polling (for transient failures like 5xx errors)'
+     required: false
+     default: '5'
+   retry_base_delay:
+     description: 'Base delay in seconds for exponential backoff between retry attempts'
+     required: false
+     default: '2'
    commit_author_name:
      description: 'Default commit author name to use if not available from event payload (useful for events without pusher field like status events)'
      required: false
