@@ -122,6 +122,8 @@ function curl_with_retry() {
   local AUTH_TOKEN="$2"
   local MAX_ATTEMPTS="${3:-5}"
   local BASE_DELAY="${4:-2}"
+  local METHOD="${5:-GET}"
+  local DATA="${6:-}"
   local ATTEMPT=1
   local HTTP_CODE
   local RESPONSE
@@ -131,13 +133,25 @@ function curl_with_retry() {
 
   while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
 
-    HTTP_CODE=$(curl \
-      --silent \
-      --show-error \
-      --write-out '%{http_code}' \
-      --output "$TEMP_FILE" \
-      -H "Authorization: Bearer ${AUTH_TOKEN}" \
-      "$URL" 2>&1 | tail -n1)
+    if [ "$METHOD" = "POST" ] && [ -n "$DATA" ]; then
+      HTTP_CODE=$(curl \
+        --silent \
+        --show-error \
+        --write-out '%{http_code}' \
+        --output "$TEMP_FILE" \
+        -X POST \
+        -H "Authorization: Bearer ${AUTH_TOKEN}" \
+        -d "$DATA" \
+        "$URL" 2>&1 | tail -n1)
+    else
+      HTTP_CODE=$(curl \
+        --silent \
+        --show-error \
+        --write-out '%{http_code}' \
+        --output "$TEMP_FILE" \
+        -H "Authorization: Bearer ${AUTH_TOKEN}" \
+        "$URL" 2>&1 | tail -n1)
+    fi
 
     RESPONSE=$(cat "$TEMP_FILE")
 
@@ -369,25 +383,20 @@ else
   FINAL_JSON=$JSON
 fi
 
-CODE=0
-RESPONSE=$(
-  curl \
-    --fail-with-body \
-    --silent \
-    --show-error \
-    -X POST \
-    -H "Authorization: Bearer ${INPUT_BUILDKITE_API_ACCESS_TOKEN}" \
-    "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
-    -d "$FINAL_JSON" | tr -d '\n'
-) || CODE=$?
+RESPONSE=$(curl_with_retry \
+  "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
+  "${INPUT_BUILDKITE_API_ACCESS_TOKEN}" \
+  "${INPUT_RETRY_MAX_ATTEMPTS:-5}" \
+  "${INPUT_RETRY_BASE_DELAY:-2}" \
+  "POST" \
+  "$FINAL_JSON")
 
-if [ $CODE -ne 0 ]; then
-  MESSAGE=$(echo "$RESPONSE" | jq .message 2>/dev/null || true)
-  if [[ -n "$MESSAGE" ]] && [[ "$MESSAGE" != 'null' ]]; then
-    echo -n "Buildkite API call failed: $MESSAGE"
-  fi
-  exit $CODE
+if [ $? -ne 0 ]; then
+  echo "Failed to create build after retries"
+  exit 1
 fi
+
+RESPONSE=$(echo "$RESPONSE" | tr -d '\n')
 
 echo ""
 echo "Build created:"
