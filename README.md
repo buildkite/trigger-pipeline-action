@@ -32,6 +32,10 @@ The action automatically determines the commit author from the GitHub event payl
 
 The action implements automatic retry logic with exponential backoff for all Buildkite API calls (both build creation and status polling). This will occur for 5xx server errors, or for 429 rate limited codes. If a 4xx code is received, a fast failure will be served.
 
+This behaviour will be default for the intial build creation, and will also occur if `wait: true` is set for polling the status of the build.
+
+By default, the base delay will be 2 seconds, with a maximum of 3 retries.
+
 ### Example
 
 The following workflow creates a new Buildkite build to the target `pipeline` on every commit.
