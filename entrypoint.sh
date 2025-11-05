@@ -184,8 +184,11 @@ function curl_with_retry() {
         TOTAL_DELAY=$(calculate_backoff_delay "$BASE_DELAY" "$ATTEMPT")
 
         echo "Network error or curl failure. Retrying in ${TOTAL_DELAY}s (attempt $ATTEMPT/$MAX_ATTEMPTS)..." >&2
+
         sleep "$TOTAL_DELAY"
+
         ATTEMPT=$((ATTEMPT + 1))
+
         continue
       else
         echo "Network error or curl failure after $MAX_ATTEMPTS attempts" >&2

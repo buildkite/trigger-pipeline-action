@@ -21,23 +21,23 @@ teardown() {
 }
 
 @test "Prints error and fails if \${{ inputs.buildkite_api_access_token }} isn't set" {
-  
+
   run "${PWD}"/entrypoint.sh
   assert_output --partial "You must set the buildkite_api_access_token input parameter"
   assert_failure
 }
 
 @test "Prints error and fails if \${{ inputs.pipeline }}  isn't set" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
 
-  run "${PWD}"/entrypoint.sh 
-  assert_output --partial "You must set the pipeline input parameter" 
+  run "${PWD}"/entrypoint.sh
+  assert_output --partial "You must set the pipeline input parameter"
   assert_failure
 }
 
 @test "Creates a build with defaults" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_NAME="create"
@@ -60,7 +60,7 @@ teardown() {
 }
 
 @test "Creates a build with commit from \${{ inputs.commit }}" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export INPUT_COMMIT="custom-commit"
@@ -84,7 +84,7 @@ teardown() {
 }
 
 @test "Creates a build with branch from \${{ inputs.branch }}" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export INPUT_BRANCH="custom-branch"
@@ -108,7 +108,7 @@ teardown() {
 }
 
 @test "Creates a build from pull request" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export INPUT_PULL_REQUEST_BASE_BRANCH="b-branch"
@@ -133,7 +133,7 @@ teardown() {
 }
 
 @test "Creates a build with branch from \${{ inputs.message }}" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export INPUT_MESSAGE="A custom message"
@@ -157,7 +157,7 @@ teardown() {
 }
 
 @test "Creates a build with build env vars from \${{ inputs.build_env_vars }}" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export INPUT_BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
@@ -180,7 +180,7 @@ teardown() {
   unstub curl
 }
 
-@test "Creates a build with build meta-data vars from \${{ inputs.build_meta_data }}" { 
+@test "Creates a build with build meta-data vars from \${{ inputs.build_meta_data }}" {
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export INPUT_BUILD_META_DATA="{\"FOO\": \"bar\"}"
@@ -203,7 +203,7 @@ teardown() {
   unstub curl
 }
 
-@test "Creates a build with ignore_pipeline_branch_filters set to true from \${{ inputs.ignore_pipeline_branch_filter }}" { 
+@test "Creates a build with ignore_pipeline_branch_filters set to true from \${{ inputs.ignore_pipeline_branch_filter }}" {
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export INPUT_BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
@@ -227,7 +227,7 @@ teardown() {
   unstub curl
 }
 
-@test "Creates a build with send_pull_request set to false from \${{ inputs.send_pull_request }}" { 
+@test "Creates a build with send_pull_request set to false from \${{ inputs.send_pull_request }}" {
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export INPUT_BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
@@ -252,7 +252,7 @@ teardown() {
   unstub curl
 }
 
-@test "Writes outputs to \$GITHUB_OUTPUT file if defined" { 
+@test "Writes outputs to \$GITHUB_OUTPUT file if defined" {
   TEST_TEMP_DIR="$(temp_make)"
 
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
@@ -286,7 +286,7 @@ teardown() {
 }
 
 @test "Prints curl error on HTTP error" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_NAME="create"
@@ -306,7 +306,7 @@ teardown() {
 }
 
 @test "Prints curl error and ignores non-JSON response on HTTP error" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_NAME="create"
@@ -328,7 +328,7 @@ teardown() {
 }
 
 @test "Prints curl error but not null JSON response message on HTTP error" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_NAME="create"
@@ -349,7 +349,7 @@ teardown() {
 }
 
 @test "Prints curl error and JSON response message on HTTP error" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_EVENT_NAME="create"
@@ -369,7 +369,7 @@ teardown() {
   unstub curl
 }
 
-@test "Prints error and fails if \${{ inputs.build_env_vars }} is not valid JSON" { 
+@test "Prints error and fails if \${{ inputs.build_env_vars }} is not valid JSON" {
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export INPUT_BUILD_ENV_VARS="broken"
@@ -396,7 +396,7 @@ teardown() {
 }
 
 @test "Sets DELETED_EVENT_REF on delete event" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export GITHUB_ACTION="delete"
@@ -418,7 +418,7 @@ teardown() {
 }
 
 @test "Combines DELETED_EVENT_REF and build_env_vars correctly" {
-  
+
   export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
   export INPUT_PIPELINE="my-org/my-pipeline"
   export INPUT_BUILD_ENV_VARS="{\"FOO\": \"bar\"}"
@@ -456,8 +456,8 @@ teardown() {
   # Stub curl to handle both the create build call and the status check calls
   stub curl \
     "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$CREATE_RESPONSE'" \
-    "--fail-with-body --silent --show-error -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : echo '$STATUS_RESPONSE_RUNNING'" \
-    "--fail-with-body --silent --show-error -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : echo '$STATUS_RESPONSE_PASSED'"
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : output_file=\"\"; for i in \"\$@\"; do if [ \"\$output_file\" = \"next\" ]; then echo '$STATUS_RESPONSE_RUNNING' > \"\$i\"; break; fi; [ \"\$i\" = \"--output\" ] && output_file=\"next\"; done; echo 200" \
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : output_file=\"\"; for i in \"\$@\"; do if [ \"\$output_file\" = \"next\" ]; then echo '$STATUS_RESPONSE_PASSED' > \"\$i\"; break; fi; [ \"\$i\" = \"--output\" ] && output_file=\"next\"; done; echo 200"
 
   run "${PWD}"/entrypoint.sh
 
@@ -487,8 +487,8 @@ teardown() {
   # Stub curl to handle both the create build call and the status check calls
   stub curl \
     "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$CREATE_RESPONSE'" \
-    "--fail-with-body --silent --show-error -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : echo '$STATUS_RESPONSE_RUNNING'" \
-    "--fail-with-body --silent --show-error -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : echo '$STATUS_RESPONSE_FAILED'"
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : output_file=\"\"; for i in \"\$@\"; do if [ \"\$output_file\" = \"next\" ]; then echo '$STATUS_RESPONSE_RUNNING' > \"\$i\"; break; fi; [ \"\$i\" = \"--output\" ] && output_file=\"next\"; done; echo 200" \
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : output_file=\"\"; for i in \"\$@\"; do if [ \"\$output_file\" = \"next\" ]; then echo '$STATUS_RESPONSE_FAILED' > \"\$i\"; break; fi; [ \"\$i\" = \"--output\" ] && output_file=\"next\"; done; echo 200"
 
   run "${PWD}"/entrypoint.sh
 
@@ -575,6 +575,161 @@ teardown() {
   assert_output --partial "::set-output name=url::https://buildkite.com/build-url"
 
   assert_success
+
+  unstub curl
+}
+
+@test "Retries on 500 error and succeeds" {
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_WAIT="true"
+  export INPUT_WAIT_INTERVAL="1"
+  export INPUT_RETRY_MAX_ATTEMPTS="3"
+  export INPUT_RETRY_BASE_DELAY="1"
+  export GITHUB_EVENT_NAME="create"
+  export GITHUB_OUTPUT=$TEST_TEMP_DIR/github_output_file
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
+  CREATE_RESPONSE='{"web_url": "https://buildkite.com/build-url", "number": "123"}'
+  STATUS_RESPONSE_PASSED='{"state": "passed"}'
+
+  stub curl \
+    "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$CREATE_RESPONSE'" \
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : echo 500" \
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : output_file=\"\"; for i in \"\$@\"; do if [ \"\$output_file\" = \"next\" ]; then echo '$STATUS_RESPONSE_PASSED' > \"\$i\"; break; fi; [ \"\$i\" = \"--output\" ] && output_file=\"next\"; done; echo 200"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "Waiting for build 123 to complete..."
+  assert_output --partial "API request failed with HTTP 500:"
+  assert_output --partial "Retrying in"
+  assert_output --partial "Build passed!"
+  assert_success
+
+  unstub curl
+}
+
+@test "Retries on 503 error and succeeds" {
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_WAIT="true"
+  export INPUT_WAIT_INTERVAL="1"
+  export INPUT_RETRY_MAX_ATTEMPTS="3"
+  export INPUT_RETRY_BASE_DELAY="1"
+  export GITHUB_EVENT_NAME="create"
+  export GITHUB_OUTPUT=$TEST_TEMP_DIR/github_output_file
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
+  CREATE_RESPONSE='{"web_url": "https://buildkite.com/build-url", "number": "123"}'
+  STATUS_RESPONSE_PASSED='{"state": "passed"}'
+
+  stub curl \
+    "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$CREATE_RESPONSE'" \
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : echo 503" \
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : output_file=\"\"; for i in \"\$@\"; do if [ \"\$output_file\" = \"next\" ]; then echo '$STATUS_RESPONSE_PASSED' > \"\$i\"; break; fi; [ \"\$i\" = \"--output\" ] && output_file=\"next\"; done; echo 200"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "Waiting for build 123 to complete..."
+  assert_output --partial "API request failed with HTTP 503:"
+  assert_output --partial "Retrying in"
+  assert_output --partial "Build passed!"
+  assert_success
+
+  unstub curl
+}
+
+@test "Retries on 429 rate limit and succeeds" {
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_WAIT="true"
+  export INPUT_WAIT_INTERVAL="1"
+  export INPUT_RETRY_MAX_ATTEMPTS="3"
+  export INPUT_RETRY_BASE_DELAY="1"
+  export GITHUB_EVENT_NAME="create"
+  export GITHUB_OUTPUT=$TEST_TEMP_DIR/github_output_file
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
+  CREATE_RESPONSE='{"web_url": "https://buildkite.com/build-url", "number": "123"}'
+  STATUS_RESPONSE_PASSED='{"state": "passed"}'
+
+  stub curl \
+    "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$CREATE_RESPONSE'" \
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : echo 429" \
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : output_file=\"\"; for i in \"\$@\"; do if [ \"\$output_file\" = \"next\" ]; then echo '$STATUS_RESPONSE_PASSED' > \"\$i\"; break; fi; [ \"\$i\" = \"--output\" ] && output_file=\"next\"; done; echo 200"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "Waiting for build 123 to complete..."
+  assert_output --partial "API request failed with HTTP 429:"
+  assert_output --partial "Retrying in"
+  assert_output --partial "Build passed!"
+  assert_success
+
+  unstub curl
+}
+
+@test "Fails fast on 404 error without retry" {
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_WAIT="true"
+  export INPUT_WAIT_INTERVAL="1"
+  export INPUT_RETRY_MAX_ATTEMPTS="3"
+  export INPUT_RETRY_BASE_DELAY="1"
+  export GITHUB_EVENT_NAME="create"
+  export GITHUB_OUTPUT=$TEST_TEMP_DIR/github_output_file
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
+  CREATE_RESPONSE='{"web_url": "https://buildkite.com/build-url", "number": "123"}'
+
+  stub curl \
+    "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$CREATE_RESPONSE'" \
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : echo 404"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "Waiting for build 123 to complete..."
+  assert_output --partial "API request failed with HTTP 404 (non-retryable client error)"
+  assert_output --partial "Failed to fetch build status after retries"
+  assert_output --partial "Build did not complete successfully"
+  refute_output --partial "Retrying"
+  assert_failure
+
+  unstub curl
+}
+
+@test "Fails after max retries" {
+  export INPUT_BUILDKITE_API_ACCESS_TOKEN="123"
+  export INPUT_PIPELINE="my-org/my-pipeline"
+  export INPUT_WAIT="true"
+  export INPUT_WAIT_INTERVAL="1"
+  export INPUT_RETRY_MAX_ATTEMPTS="2"
+  export INPUT_RETRY_BASE_DELAY="1"
+  export GITHUB_EVENT_NAME="create"
+  export GITHUB_OUTPUT=$TEST_TEMP_DIR/github_output_file
+
+  EXPECTED_JSON='{"commit":"a-sha","branch":"a-branch","message":"","author":{"name":"The Pusher","email":"pusher@pusher.com"},"env":{"GITHUB_REPOSITORY":"buildkite/test-repo","SOURCE_REPO_SHA":"a-sha","SOURCE_REPO_REF":"a-branch"}}'
+  CREATE_RESPONSE='{"web_url": "https://buildkite.com/build-url", "number": "123"}'
+
+  stub curl \
+    "--fail-with-body --silent --show-error -X POST -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds -d '$EXPECTED_JSON' : echo '$CREATE_RESPONSE'" \
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : echo 500" \
+    "--silent --show-error --write-out %{http_code} --output * -H \"Authorization: Bearer 123\" https://api.buildkite.com/v2/organizations/my-org/pipelines/my-pipeline/builds/123 : echo 500"
+
+  run "${PWD}"/entrypoint.sh
+
+  assert_output --partial "Build created:"
+  assert_output --partial "Waiting for build 123 to complete..."
+  assert_output --partial "API request failed with HTTP 500:"
+  assert_output --partial "Retrying in"
+  assert_output --partial "API request failed with HTTP 500 after 2 attempts"
+  assert_output --partial "Failed to fetch build status after retries"
+  assert_output --partial "Build did not complete successfully"
+  assert_failure
 
   unstub curl
 }
