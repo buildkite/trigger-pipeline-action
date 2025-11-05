@@ -34,7 +34,7 @@ The action implements automatic retry logic with exponential backoff for all Bui
 
 This behaviour will be default for the intial build creation, and will also occur if `wait: true` is set for polling the status of the build.
 
-By default, the base delay will be 2 seconds, with a maximum of 3 retries.
+By default, the base delay will be 2 seconds, with a maximum of 5 retries.
 
 ### Example
 
