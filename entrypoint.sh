@@ -103,44 +103,164 @@ function get_INPUT_BUILD_ENV_VARS_json() {
   echo "$INPUT_BUILD_ENV_VARS"
 }
 
+function calculate_backoff_delay() {
+  local BASE_DELAY="$1"
+  local ATTEMPT="$2"
+  local DELAY=$((BASE_DELAY * (2 ** (ATTEMPT - 1))))
+  local JITTER=$((RANDOM % (DELAY / 4 + 1)))
+  local TOTAL_DELAY=$((DELAY + JITTER))
+
+  if [ "$TOTAL_DELAY" -gt 60 ]; then
+    TOTAL_DELAY=60
+  fi
+
+  echo "$TOTAL_DELAY"
+}
+
+function curl_with_retry() {
+  local URL="$1"
+  local AUTH_TOKEN="$2"
+  local MAX_ATTEMPTS="${3:-5}"
+  local BASE_DELAY="${4:-2}"
+  local METHOD="${5:-GET}"
+  local DATA="${6:-}"
+  local ATTEMPT=1
+  local HTTP_CODE
+  local RESPONSE
+  local TEMP_FILE
+
+  TEMP_FILE=$(mktemp)
+
+  while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
+
+    if [ "$METHOD" = "POST" ] && [ -n "$DATA" ]; then
+      HTTP_CODE=$(curl \
+        --silent \
+        --show-error \
+        --write-out '%{http_code}' \
+        --output "$TEMP_FILE" \
+        -X POST \
+        -H "Authorization: Bearer ${AUTH_TOKEN}" \
+        -d "$DATA" \
+        "$URL" 2>&1 | tail -n1)
+    else
+      HTTP_CODE=$(curl \
+        --silent \
+        --show-error \
+        --write-out '%{http_code}' \
+        --output "$TEMP_FILE" \
+        -H "Authorization: Bearer ${AUTH_TOKEN}" \
+        "$URL" 2>&1 | tail -n1)
+    fi
+
+    RESPONSE=$(cat "$TEMP_FILE")
+
+    # Check HTTP code
+    if [[ "$HTTP_CODE" =~ ^[0-9]{3}$ ]]; then
+      if [[ "$HTTP_CODE" =~ ^2[0-9]{2}$ ]]; then
+        rm -f "$TEMP_FILE"
+        echo "$RESPONSE"
+        return 0
+      fi
+
+      # Throw fast fail for 4xx codes except 429
+      if [[ "$HTTP_CODE" =~ ^4[0-9]{2}$ ]] && [[ "$HTTP_CODE" != "429" ]]; then
+        echo "API request failed with HTTP $HTTP_CODE (non-retryable client error)" >&2
+        echo "$RESPONSE" >&2
+        rm -f "$TEMP_FILE"
+        return 1
+      fi
+
+      # Retry 5xx and 429 with exponential backoff
+      if [[ "$HTTP_CODE" =~ ^5[0-9]{2}$ ]] || [[ "$HTTP_CODE" == "429" ]]; then
+        if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
+          local TOTAL_DELAY
+          TOTAL_DELAY=$(calculate_backoff_delay "$BASE_DELAY" "$ATTEMPT")
+
+          echo "API request failed with HTTP $HTTP_CODE: $RESPONSE" >&2
+          echo "Retrying in ${TOTAL_DELAY}s (attempt $ATTEMPT/$MAX_ATTEMPTS)..." >&2
+
+          sleep "$TOTAL_DELAY"
+          ATTEMPT=$((ATTEMPT + 1))
+          continue
+        else
+          echo "API request failed with HTTP $HTTP_CODE after $MAX_ATTEMPTS attempts" >&2
+          echo "$RESPONSE" >&2
+
+          rm -f "$TEMP_FILE"
+
+          return 1
+        fi
+      fi
+    else
+      if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
+        local TOTAL_DELAY
+        TOTAL_DELAY=$(calculate_backoff_delay "$BASE_DELAY" "$ATTEMPT")
+
+        echo "Network error or curl failure. Retrying in ${TOTAL_DELAY}s (attempt $ATTEMPT/$MAX_ATTEMPTS)..." >&2
+
+        sleep "$TOTAL_DELAY"
+
+        ATTEMPT=$((ATTEMPT + 1))
+
+        continue
+      else
+        echo "Network error or curl failure after $MAX_ATTEMPTS attempts" >&2
+        echo "$HTTP_CODE" >&2
+        rm -f "$TEMP_FILE"
+        return 1
+      fi
+    fi
+  done
+}
+
 function wait_for_build() {
   local BUILD_ID
   local ORG_SLUG
   local PIPELINE_SLUG
   local WAIT_INTERVAL
   local WAIT_TIMEOUT
+  local RETRY_MAX_ATTEMPTS
+  local RETRY_BASE_DELAY
   local START_TIME
   local CURRENT_TIME
   local ELAPSED_TIME
   local BUILD_STATE
-  
+  local BUILD_RESPONSE
+
   BUILD_ID="$1"
   ORG_SLUG="$2"
   PIPELINE_SLUG="$3"
   WAIT_INTERVAL="${4:-10}"
   WAIT_TIMEOUT="${5:-3600}"
-  
+  RETRY_MAX_ATTEMPTS="${6:-5}"
+  RETRY_BASE_DELAY="${7:-2}"
+
   echo "Waiting for build $BUILD_ID to complete..."
   START_TIME=$(date +%s)
-  
+
   while true; do
     CURRENT_TIME=$(date +%s)
     ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
-    
+
     if [ "$ELAPSED_TIME" -gt "$WAIT_TIMEOUT" ]; then
       echo "Timeout reached after ${WAIT_TIMEOUT} seconds"
       return 1
     fi
-    
-    BUILD_RESPONSE=$(curl \
-      --fail-with-body \
-      --silent \
-      --show-error \
-      -H "Authorization: Bearer ${INPUT_BUILDKITE_API_ACCESS_TOKEN}" \
-      "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds/${BUILD_ID}")
-    
+
+    BUILD_RESPONSE=$(curl_with_retry \
+      "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds/${BUILD_ID}" \
+      "${INPUT_BUILDKITE_API_ACCESS_TOKEN}" \
+      "$RETRY_MAX_ATTEMPTS" \
+      "$RETRY_BASE_DELAY")
+
+    if [ $? -ne 0 ]; then
+      echo "Failed to fetch build status after retries"
+      return 1
+    fi
+
     BUILD_STATE=$(echo "$BUILD_RESPONSE" | jq -r .state)
-    
+
     case "$BUILD_STATE" in
       "passed")
         echo "Build passed!"
@@ -200,14 +320,14 @@ fi
 if [[ "$INPUT_BUILD_ENV_VARS" ]]; then
   if ! echo "$INPUT_BUILD_ENV_VARS" | jq empty; then
     echo ""
-    echo "Error: build_env_vars provided invalid JSON: $INPUT_BUILD_ENV_VARS" 
+    echo "Error: build_env_vars provided invalid JSON: $INPUT_BUILD_ENV_VARS"
     exit 1
   fi
 fi
 
 
 INPUT_BUILD_ENV_VARS_JSON="$(get_INPUT_BUILD_ENV_VARS_json "$DELETE_EVENT_JSON" "$INPUT_BUILD_ENV_VARS" "$(get_github_env_json)")"
- 
+
 # Use jq’s --arg properly escapes string values for us
 JSON=$(
   jq -c -n \
@@ -263,25 +383,20 @@ else
   FINAL_JSON=$JSON
 fi
 
-CODE=0
-RESPONSE=$(
-  curl \
-    --fail-with-body \
-    --silent \
-    --show-error \
-    -X POST \
-    -H "Authorization: Bearer ${INPUT_BUILDKITE_API_ACCESS_TOKEN}" \
-    "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
-    -d "$FINAL_JSON" | tr -d '\n'
-) || CODE=$?
+RESPONSE=$(curl_with_retry \
+  "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
+  "${INPUT_BUILDKITE_API_ACCESS_TOKEN}" \
+  "${INPUT_RETRY_MAX_ATTEMPTS:-5}" \
+  "${INPUT_RETRY_BASE_DELAY:-2}" \
+  "POST" \
+  "$FINAL_JSON")
 
-if [ $CODE -ne 0 ]; then
-  MESSAGE=$(echo "$RESPONSE" | jq .message 2>/dev/null || true)
-  if [[ -n "$MESSAGE" ]] && [[ "$MESSAGE" != 'null' ]]; then
-    echo -n "Buildkite API call failed: $MESSAGE"
-  fi
-  exit $CODE
+if [ $? -ne 0 ]; then
+  echo "Failed to create build after retries"
+  exit 1
 fi
+
+RESPONSE=$(echo "$RESPONSE" | tr -d '\n')
 
 echo ""
 echo "Build created:"
@@ -293,7 +408,7 @@ BUILD_NUMBER=$(echo "$RESPONSE" | jq --raw-output ".number")
 
 # Wait for build if requested
 if [[ "${INPUT_WAIT:-false}" == 'true' ]]; then
-  if ! wait_for_build "$BUILD_NUMBER" "$ORG_SLUG" "$PIPELINE_SLUG" "${INPUT_WAIT_INTERVAL:-10}" "${INPUT_WAIT_TIMEOUT:-3600}"; then
+  if ! wait_for_build "$BUILD_NUMBER" "$ORG_SLUG" "$PIPELINE_SLUG" "${INPUT_WAIT_INTERVAL:-10}" "${INPUT_WAIT_TIMEOUT:-3600}" "${INPUT_RETRY_MAX_ATTEMPTS:-5}" "${INPUT_RETRY_BASE_DELAY:-2}"; then
     echo "Build did not complete successfully"
     exit 1
   fi
