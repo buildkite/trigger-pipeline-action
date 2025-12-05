@@ -16,6 +16,15 @@ Create a [Buildkite API Access Token](https://buildkite.com/docs/apis/rest-api#a
 
 Refer to the [action.yml](./action.yml) for more detailed information on parameter use.
 
+### Pipeline Identification
+
+You can identify the target pipeline using either:
+
+- **`pipeline`**: The pipeline in `<org-slug>/<pipeline-slug>` format (e.g., `my-org/my-pipeline`)
+- **`pipeline_uuid`**: The pipeline's UUID (e.g., `0190df6f-c1e7-46c6-bf80-0c93f8ffb0e7`)
+
+Using `pipeline_uuid` is recommended when you want a stable identifier that won't change if the pipeline is renamed. You can find a pipeline's UUID in the Buildkite dashboard under Pipeline Settings → GraphQL API Integration.
+
 ### Author Information
 
 The action automatically determines the commit author from the GitHub event payload using the following priority order:
@@ -59,6 +68,23 @@ steps:
       wait: true
       wait_interval: 10
       wait_timeout: 300
+```
+
+#### Example with Pipeline UUID
+
+Using `pipeline_uuid` provides a stable reference that won't break if the pipeline is renamed:
+
+```yaml
+on: [push]
+
+steps:
+  - name: Trigger a Buildkite Build
+    uses: "buildkite/trigger-pipeline-action@v2.4.1"
+    with:
+      buildkite_api_access_token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }}
+      pipeline_uuid: "0190df6f-c1e7-46c6-bf80-0c93f8ffb0e7"
+      branch: "master"
+      message: ":github: Triggered from a GitHub Action"
 ```
 
 #### Example with Default Author Values
