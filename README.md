@@ -21,7 +21,7 @@ Refer to the [action.yml](./action.yml) for more detailed information on paramet
 You can identify the target pipeline using either:
 
 - **`pipeline`**: The pipeline in `<org-slug>/<pipeline-slug>` format (e.g., `my-org/my-pipeline`)
-- **`pipeline_uuid`**: The pipeline's UUID (e.g., `0190df6f-c1e7-46c6-bf80-0c93f8ffb0e7`)
+- **`pipeline_uuid`**: The pipeline's UUID (e.g., `018f21e8-3c7a-4a62-9c60-1b8e3b5d7c9f`)
 
 Using `pipeline_uuid` is recommended when you want a stable identifier that won't change if the pipeline is renamed. You can find a pipeline's UUID in the Buildkite dashboard under Pipeline Settings → GraphQL API Integration.
 
@@ -82,7 +82,7 @@ steps:
     uses: "buildkite/trigger-pipeline-action@v2.4.1"
     with:
       buildkite_api_access_token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }}
-      pipeline_uuid: "0190df6f-c1e7-46c6-bf80-0c93f8ffb0e7"
+      pipeline_uuid: "018f21e8-3c7a-4a62-9c60-1b8e3b5d7c9f"
       branch: "master"
       message: ":github: Triggered from a GitHub Action"
 ```
