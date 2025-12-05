@@ -6,8 +6,11 @@ inputs:
      description: 'Buildkite API Access Token'
      required: true
    pipeline:
-     description: 'The pipline to create a build on, in the format <org-slug>/<pipeline-slug>'
-     required: true
+     description: 'The pipeline to create a build on, in the format <org-slug>/<pipeline-slug>. Either this or pipeline_uuid must be provided.'
+     required: false
+   pipeline_uuid:
+     description: 'The UUID of the pipeline to create a build on. Use this instead of pipeline for a stable identifier that does not change when the pipeline is renamed. Either this or pipeline must be provided.'
+     required: false
    commit:
      description: 'The commit SHA of the build'
      required: false
