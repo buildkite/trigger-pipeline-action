@@ -295,16 +295,18 @@ if [[ -z "${INPUT_PIPELINE:-}" ]] && [[ -z "${INPUT_PIPELINE_UUID:-}" ]]; then
   exit 1
 fi
 
+ORG_SLUG=""
+PIPELINE_SLUG=""
+PIPELINE_UUID=""
+BUILD_URL=""
+
 if [[ -n "${INPUT_PIPELINE_UUID:-}" ]]; then
   PIPELINE_UUID="${INPUT_PIPELINE_UUID}"
   BUILD_URL="https://api.buildkite.com/v2/pipelines/${PIPELINE_UUID}/builds"
-  ORG_SLUG=""
-  PIPELINE_SLUG=""
 else
   ORG_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f1)
   PIPELINE_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f2)
   BUILD_URL="https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds"
-  PIPELINE_UUID=""
 fi
 
 COMMIT="${INPUT_COMMIT:-${GITHUB_SHA}}"
