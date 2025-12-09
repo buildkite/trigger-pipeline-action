@@ -290,13 +290,24 @@ if [[ -z "${INPUT_BUILDKITE_API_ACCESS_TOKEN:-}" ]]; then
   exit 1
 fi
 
-if [[ -z "${INPUT_PIPELINE:-}" ]]; then
-  echo "You must set the pipeline input parameter (e.g. pipeline: \"my-org/my-pipeline\")"
+if [[ -z "${INPUT_PIPELINE:-}" ]] && [[ -z "${INPUT_PIPELINE_UUID:-}" ]]; then
+  echo "You must set either the pipeline input parameter (e.g. pipeline: \"my-org/my-pipeline\") or pipeline_uuid (e.g. pipeline_uuid: \"0190df6f-c1e7-46c6-bf80-0c93f8ffb0e7\")"
   exit 1
 fi
 
-ORG_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f1)
-PIPELINE_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f2)
+ORG_SLUG=""
+PIPELINE_SLUG=""
+PIPELINE_UUID=""
+BUILD_URL=""
+
+if [[ -n "${INPUT_PIPELINE_UUID:-}" ]]; then
+  PIPELINE_UUID="${INPUT_PIPELINE_UUID}"
+  BUILD_URL="https://api.buildkite.com/v2/pipelines/${PIPELINE_UUID}/builds"
+else
+  ORG_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f1)
+  PIPELINE_SLUG=$(echo "${INPUT_PIPELINE}" | cut -d'/' -f2)
+  BUILD_URL="https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds"
+fi
 
 COMMIT="${INPUT_COMMIT:-${GITHUB_SHA}}"
 BRANCH="${INPUT_BRANCH:-${GITHUB_REF#"refs/heads/"}}"
@@ -384,7 +395,7 @@ else
 fi
 
 RESPONSE=$(curl_with_retry \
-  "https://api.buildkite.com/v2/organizations/${ORG_SLUG}/pipelines/${PIPELINE_SLUG}/builds" \
+  "${BUILD_URL}" \
   "${INPUT_BUILDKITE_API_ACCESS_TOKEN}" \
   "${INPUT_RETRY_MAX_ATTEMPTS:-5}" \
   "${INPUT_RETRY_BASE_DELAY:-2}" \
@@ -405,6 +416,12 @@ echo "$URL"
 
 # Extract build number from response
 BUILD_NUMBER=$(echo "$RESPONSE" | jq --raw-output ".number")
+
+# When using pipeline_uuid, extract org and pipeline slugs from the response for wait_for_build
+if [[ -n "${PIPELINE_UUID}" ]]; then
+  ORG_SLUG=$(echo "$RESPONSE" | jq --raw-output ".url" | sed -n 's|.*/organizations/\([^/]*\)/pipelines/.*|\1|p')
+  PIPELINE_SLUG=$(echo "$RESPONSE" | jq --raw-output ".pipeline.slug")
+fi
 
 # Wait for build if requested
 if [[ "${INPUT_WAIT:-false}" == 'true' ]]; then
