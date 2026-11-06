@@ -2,27 +2,28 @@ name: Unit Test
 
 on: push
 
-jobs:
-    build:
-      name: build
-      runs-on: ubuntu-latest
-      steps:
-  
-        - name: Check out code
-          uses: actions/checkout@v3 
+permissions:
+  contents: read
 
-        - name: Verify that the Docker image for the action builds
-          run: docker build . --file Dockerfile         
-     
-    tests:
-      name: unit-test
-      runs-on: ubuntu-latest    
-      steps:
-        - name: checkout base image 
-          uses: actions/checkout@v3  
-        - uses: addnab/docker-run-action@v3
-          with:
-            image: buildkite/plugin-tester:v4.1.1
-            options: --rm -v ${{ github.workspace }}:/plugin
-            run: bats tests/. 
-   
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Verify that the Docker image for the action builds
+        run: docker build . --file Dockerfile
+
+  tests:
+    name: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run bats tests
+        run: docker run --rm -v "$GITHUB_WORKSPACE:/plugin" buildkite/plugin-tester:v4.1.1 bats tests/.
