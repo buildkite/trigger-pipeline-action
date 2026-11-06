@@ -1,18 +1,20 @@
 name: Verify
 
 on: push
- 
-jobs: 
+
+permissions:
+  contents: read
+
+jobs:
   tests:
     name: Integration tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - name: Verify that the Docker image for the action builds
-        run: docker build . --file Dockerfile      
- 
-      - uses: mcncl/trigger-pipeline-action@master
+      - uses: ./
         id: buildkite
         with:
           buildkite_api_access_token: ${{ secrets.BUILDKITE_TOKEN }}
@@ -22,9 +24,9 @@ jobs:
           wait_timeout: 300
 
       - name: Check Build State
+        env:
+          BUILD_URL: ${{ steps.buildkite.outputs.url }}
+          BUILD_STATE: ${{ steps.buildkite.outputs.state }}
         run: |
-          echo "Build URL: ${{ steps.buildkite.outputs.url }}"
-          echo "Build State: ${{ steps.buildkite.outputs.state }}"
-      
-      - name: Verify output
-        run: echo ${{join(steps.tests.outputs.*, '\n')}} 
+          echo "Build URL: $BUILD_URL"
+          echo "Build State: $BUILD_STATE"
