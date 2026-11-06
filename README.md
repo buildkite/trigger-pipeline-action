@@ -54,7 +54,7 @@ on: [push]
 
 steps:
   - name: Trigger a Buildkite Build
-    uses: "buildkite/trigger-pipeline-action@v2.4.1"
+    uses: "buildkite/trigger-pipeline-action@v2.5.1"
     with:
       buildkite_api_access_token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }}
       pipeline: "my-org/my-deploy-pipeline"
@@ -79,7 +79,7 @@ on: [push]
 
 steps:
   - name: Trigger a Buildkite Build
-    uses: "buildkite/trigger-pipeline-action@v2.4.1"
+    uses: "buildkite/trigger-pipeline-action@v2.5.1"
     with:
       buildkite_api_access_token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }}
       pipeline_uuid: "018f21e8-3c7a-4a62-9c60-1b8e3b5d7c9f"
@@ -96,7 +96,7 @@ on: [status]
 
 steps:
   - name: Trigger a Buildkite Build
-    uses: "buildkite/trigger-pipeline-action@v2.4.1"
+    uses: "buildkite/trigger-pipeline-action@v2.5.1"
     with:
       buildkite_api_access_token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }}
       pipeline: "my-org/my-deploy-pipeline"
@@ -113,7 +113,7 @@ on: [push]
 
 steps:
   - name: Trigger a Buildkite Build
-    uses: "buildkite/trigger-pipeline-action@v2.4.1"
+    uses: "buildkite/trigger-pipeline-action@v2.5.1"
     with:
       buildkite_api_access_token: ${{ secrets.TRIGGER_BK_BUILD_TOKEN }}
       pipeline: "my-org/my-deploy-pipeline"
