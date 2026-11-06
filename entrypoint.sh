@@ -264,12 +264,12 @@ function wait_for_build() {
     case "$BUILD_STATE" in
       "passed")
         echo "Build passed!"
-        echo "build_state=$BUILD_STATE" >>"${GITHUB_OUTPUT}"
+        echo "state=$BUILD_STATE" >>"${GITHUB_OUTPUT}"
         return 0
         ;;
       "failed"|"canceled"|"skipped"|"blocked")
         echo "Build finished with state: $BUILD_STATE"
-        echo "build_state=$BUILD_STATE" >>"${GITHUB_OUTPUT}"
+        echo "state=$BUILD_STATE" >>"${GITHUB_OUTPUT}"
         return 1
         ;;
       "running"|"scheduled"|"waiting"|"waiting_failed")
@@ -278,7 +278,7 @@ function wait_for_build() {
         ;;
       *)
         echo "Unknown build state: $BUILD_STATE"
-        echo "build_state=$BUILD_STATE" >>"${GITHUB_OUTPUT}"
+        echo "state=$BUILD_STATE" >>"${GITHUB_OUTPUT}"
         return 1
         ;;
     esac
